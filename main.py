@@ -30,3 +30,5 @@ if __name__ == "__main__":
     print(m3)
     m4 = MemberRecord("Richard Simmons", 123123, "1 main st.", "portland", "or", "97000")
     print(m4)
+
+    print("PULL REQUEST TESTING")
