@@ -35,6 +35,9 @@ def test_default_constructor():
 def test_copy_constructor(m_obj, a_obj):
     mr = Records.MemberRecord(m_obj)
     assert mr._is_suspended == False
+    m_obj.suspend_membership()
+    mr = Records.MemberRecord(m_obj)
+    assert mr._is_suspended == True
 
 def test_copy_constructor_exceptions(m_obj, a_obj):
     inputs = [1, "test", 3.14, a_obj]
@@ -48,8 +51,10 @@ def test_param_constructor(a_obj):
     mr = Records.MemberRecord("Dick Nixon", 999999, a_obj)
     assert mr._name == "Dick Nixon"
     assert mr._ID == 999999
+    assert mr._is_suspended == False
     a = Records.Address(mr)
     assert a == a_obj
+
 
 
 def test_convert_status(m_obj):

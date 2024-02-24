@@ -194,6 +194,12 @@ class UserRecord(Address):
 
     #TODO: Add service list functionality
         
+##################################
+#
+# MemberRecord : UserRecord
+#
+##################################
+        
 class MemberRecord(UserRecord):
     def __init__(self, *args):
         arg_len = len(args)
@@ -271,3 +277,87 @@ class MemberRecord(UserRecord):
 
 
     #TODO: Add service list functionality
+
+
+##################################
+#
+# ProviderRecord : UserRecord
+#
+##################################
+    
+class ProviderRecord(UserRecord):
+
+    def __init__(self, *args):
+        arg_len = len(args)
+        if (arg_len != 0 and arg_len != 1 and arg_len != 3 and arg_len != 6): # Check to make sure valid number of arguments
+            raise ValueError("Incorrect number of arguments when initializing UserRecord")
+        
+        if (arg_len == 1): # 1 argument: args[0] should be another Address object, error checking in _copy_constructor
+            self._copy_constructor(args[0])
+
+        elif (arg_len == 3): # 3 arguments: args[0:3] should be name, ID, address in that order
+            self._param_constructor(args[0], args[1], args[2])
+
+        elif (arg_len == 6):
+            address = Address(args[2], args[3], args[4], args[5])
+            self._param_constructor(args[0], args[1], address)
+
+        else: # No arguments, default constructor, should generally not be used unless you're planning on filling up the members with setters immediately after
+            self._default_constructor()
+
+    # Default Constructor
+    def _default_constructor(self):
+        super()._default_constructor()
+        self._num_consultations = 0
+        self._total_payment = 0.00
+
+    # Copy Constructor
+    def _copy_constructor(self, other):
+        if not (isinstance(other, ProviderRecord)):
+            raise ValueError("Other is not of type ProviderRecord in copy constructor")
+        super()._copy_constructor(other)
+        self._num_consultations = other.num_consultations
+        self._total_payment = other.total_payment
+    
+
+    # Paramaterized Constructor
+    def _param_constructor(self, a_name, a_ID, a_address):
+            super()._param_constructor(a_name, a_ID, a_address)
+            self._num_consultations = 0
+            self._total_payment = 0.00
+    
+
+
+    def add_payment(self, new_payment):
+        new_payment = float(new_payment) # Will force a TypeError if its the wrong type, but will convert ints to floats
+        self.total_payment += new_payment
+    
+    def add_consultation(self):
+        self.num_consultations += 1
+
+    def __str__(self):
+        string = super().__str__()
+        string += ("Consultations: " + str(self.num_constultations))
+        string += ("Total Payment Due: " + str(self.total_payment))
+
+
+    @property
+    def num_consultations(self):
+        return int(self._num_consultations)
+    
+    @num_consultations.setter
+    def num_consultations(self, new_num):
+        if not (isinstance(new_num, int)):
+            raise ValueError("Invalid type when setting num consultations")
+        self._num_consultations = new_num
+
+    @property
+    def total_payment(self):
+        return float(self._total_payment)
+    
+    @total_payment.setter
+    def total_payment(self, new_amount):
+        print(new_amount)
+        if not (isinstance(new_amount, float)):
+            raise ValueError("Invalid type when setting total payment")
+        self._total_payment = new_amount
