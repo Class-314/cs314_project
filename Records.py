@@ -1,3 +1,127 @@
+import datetime
+
+##################################
+#
+# ServiceRecord (Base Class)
+#
+##################################
+
+class ServiceRecord:
+    def __init__(self, *args):
+        self._comments = None
+        arg_len = len(args)
+        if (arg_len != 0 and arg_len != 1 and arg_len != 4 and arg_len !=5): # Check to make sure valid number of arguments
+            raise ValueError("Incorrect number of arguments when initializing ServiceRecord")
+        if (arg_len == 1): # 1 argument: args[0] should be another ServiceRecord object, error checking in _copy_constructor
+            self._copy_constructor(args[0])
+        elif (arg_len == 4): # 4 arguments: args[0:4] should be street, city, state, zip in that order
+            self._param_constructor(args[0], args[1], args[2], args[3])
+        elif (arg_len == 5):
+            self._comments = str(args[4])
+            self._param_constructor(args[0], args[1], args[2], args[3])
+        else: # No arguments, default constructor, should generally not be used unless you're planning on filling up the members with setters immediately after
+            self._default_constructor()
+
+    # Default Constructor
+    def _default_constructor(self):
+        self._service_code = None
+        self._mID = None
+        self._pID = None
+        #TODO: Error protection against no comments added: if comments is None
+        self._comments = None 
+        self._date_provided = None
+        self._current_datetime = datetime.datetime.now().replace(microsecond=0)
+        self._current_datetime = self._current_datetime.strftime("%m-%d-%Y")
+
+    # Copy Constructor
+    def _copy_constructor(self, other):
+        if not (isinstance(other, ServiceRecord)):
+            raise ValueError("Other is not of type ServiceRecord in copy constructor")
+        self._service_code = other._service_code
+        self._mID = other._mID
+        self._pID = other._pID
+        self._comments = other._comments
+        self._date_provided = other._date_provided
+        self._current_datetime = other._current_datetime
+
+    # Paramaterized Constructor
+    def _param_constructor(self, a_service_code, a_pID, a_mID, a_date):
+            self.service_code = a_service_code
+            self.mID = a_mID
+            self.pID = a_pID
+            self.date_provided = a_date
+            self._current_datetime = datetime.datetime.now().replace(microsecond=0)
+            self._current_datetime = self._current_datetime.strftime("%m-%d-%Y")
+            #TODO: Error checking on improper date entry
+
+    # Getters/Setters using decorators for extra protection
+            
+    @property
+    def service_code(self):
+        return int(self._service_code)
+    
+
+    @service_code.setter
+    def service_code(self, new_sc):
+        if (len(str(new_sc)) != 6): # cast to str to check length to guarantee 5 digits, there's probably a cleaner way to do this
+            raise ValueError("Invalid input when setting service code")
+        new_sc = int(new_sc)
+        self._service_code = new_sc
+
+    @property
+    def mID(self):
+        return int(self._mID)
+    
+
+    @mID.setter
+    def mID(self, new_id):
+        if (len(str(new_id)) != 9): # cast to str to check length to guarantee 5 digits, there's probably a cleaner way to do this
+            raise ValueError("Invalid input when setting service code")
+        new_id = int(new_id)
+        self._mID = new_id
+    
+    @property
+    def pID(self):
+        return int(self._pID)
+
+    @pID.setter
+    def pID(self, new_id):
+        if (len(str(new_id)) != 9):
+            raise ValueError("Invalid input when setting service code")
+        new_id = int(new_id)
+        self._pID = new_id
+
+    @property
+    def date_provided(self):
+        return str(self._date_provided)
+    
+    @date_provided.setter
+    def date_provided(self, new_date):
+        #TODO Date error checking
+        if (len(str(new_date)) != 10):
+            raise ValueError("Invalid input when setting date provided")
+        self._date_provided = new_date
+
+    @property
+    def current_datetime(self):
+        return str(self._date_provided)
+    
+    @current_datetime.setter
+    def current_datetime(self, new_datetime):
+        self._current_datetime = new_datetime
+
+
+
+    # str overload, similar to << overload in C++
+    # lets us specify exactly what comes out when someone calls print(object)
+    def __str__(self):
+        string = str(str(self._service_code) + "\nProvider ID: " + str(self._pID) + "\nMember ID: " + str(self._mID))
+        string += str("\nDate Provided: " + str(self._date_provided) + "\nDate Submitted: " + str(self._current_datetime))
+        if not (self._comments is None):
+            string += str('\n' + str(self._comments))
+        return string
+    
+
 
 ##################################
 #
@@ -188,7 +312,7 @@ class UserRecord(Address):
     
     @ID.setter
     def ID(self, new_id):
-        if (len(str(new_id)) != 6):
+        if (len(str(new_id)) != 9):
             raise ValueError("Invalid number of digits in set ID")
         self._ID = int(new_id)
 

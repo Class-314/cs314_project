@@ -13,7 +13,7 @@ def a_obj():
 
 @pytest.fixture
 def m_obj(a_obj):
-    m = Records.MemberRecord("Richard Simmons", 123456, a_obj)
+    m = Records.MemberRecord("Richard Simmons", 123456123, a_obj)
     return m
 
 
@@ -48,9 +48,9 @@ def test_copy_constructor_exceptions(m_obj, a_obj):
 
 
 def test_param_constructor(a_obj):
-    mr = Records.MemberRecord("Dick Nixon", 999999, a_obj)
+    mr = Records.MemberRecord("Dick Nixon", 999999123, a_obj)
     assert mr._name == "Dick Nixon"
-    assert mr._ID == 999999
+    assert mr._ID == 999999123
     assert mr._is_suspended == False
     a = Records.Address(mr)
     assert a == a_obj

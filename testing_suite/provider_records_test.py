@@ -13,7 +13,7 @@ def a_obj():
 
 @pytest.fixture
 def p_obj(a_obj):
-    p = Records.ProviderRecord("Richard Simmons", 123456, a_obj)
+    p = Records.ProviderRecord("Richard Simmons", 123456123, a_obj)
     return p
 
 
@@ -54,9 +54,9 @@ def test_copy_constructor_exceptions(p_obj, a_obj):
 
 
 def test_param_constructor(a_obj):
-    pr = Records.ProviderRecord("Dick Nixon", 999999, a_obj)
+    pr = Records.ProviderRecord("Dick Nixon", 999999123, a_obj)
     assert pr._name == "Dick Nixon"
-    assert pr._ID == 999999
+    assert pr._ID == 999999123
     assert pr._num_consultations == 0
     assert pr._total_payment == 0
     a = Records.Address(pr)
