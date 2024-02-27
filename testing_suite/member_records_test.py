@@ -55,6 +55,26 @@ def test_param_constructor(a_obj):
     a = Records.Address(mr)
     assert a == a_obj
 
+def test_eq_ne(m_obj):
+    mr = Records.MemberRecord(m_obj)
+    assert mr == m_obj
+    mr.suspend_membership()
+    assert mr != m_obj
+
+# not technically necessary since the parent classes handle exceptions and those have already been tested
+def test_eq_ne_exceptions(m_obj):
+    mr = Records.MemberRecord(m_obj)
+    inputs = [1, "test", 3.14]
+    for i in inputs:
+        with pytest.raises(ValueError):
+            if (mr == i):
+                print()
+    for i in inputs:
+        with pytest.raises(ValueError):
+            if (mr != i):
+                print()
+
+
 
 
 def test_convert_status(m_obj):

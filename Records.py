@@ -27,11 +27,10 @@ class ServiceRecord:
         self._service_code = None
         self._mID = None
         self._pID = None
-        #TODO: Error protection against no comments added: if comments is None
         self._comments = None 
         self._date_provided = None
         self._current_datetime = datetime.datetime.now().replace(microsecond=0)
-        self._current_datetime = self._current_datetime.strftime("%m-%d-%Y")
+        self._current_datetime = self._current_datetime.strftime("%m-%d-%Y %H:%M:%S")
 
     # Copy Constructor
     def _copy_constructor(self, other):
@@ -49,10 +48,18 @@ class ServiceRecord:
             self.service_code = a_service_code
             self.mID = a_mID
             self.pID = a_pID
-            self.date_provided = a_date
+            self.date_provided = self.convert_date(a_date)
             self._current_datetime = datetime.datetime.now().replace(microsecond=0)
-            self._current_datetime = self._current_datetime.strftime("%m-%d-%Y")
-            #TODO: Error checking on improper date entry
+            self._current_datetime = self._current_datetime.strftime("%m-%d-%Y %H:%M:%S")
+
+
+
+    def convert_date(self, input_string):
+        input_string = str(input_string)
+        month, day, year = map(int, input_string.split('-'))
+        converted = datetime.date(year, month, day)
+        converted = converted.strftime("%m-%d-%Y")
+        return converted
 
     # Getters/Setters using decorators for extra protection
             
@@ -104,7 +111,7 @@ class ServiceRecord:
 
     @property
     def current_datetime(self):
-        return str(self._date_provided)
+        return str(self._current_datetime)
     
     @current_datetime.setter
     def current_datetime(self, new_datetime):
@@ -121,6 +128,15 @@ class ServiceRecord:
             string += str('\n' + str(self._comments))
         return string
     
+    def __eq__(self, other):
+        if not (isinstance(other, ServiceRecord)):
+            raise ValueError("Trying to compare object not of type ServiceRecord")
+        return (self._service_code == other._service_code and self._pID == other._pID and self._mID == other._mID and self._comments == other._comments and self._date_provided == other._date_provided and self._current_datetime == other._current_datetime)
+    
+    def __ne__(self, other):
+        if not (isinstance(other, ServiceRecord)):
+            raise ValueError("Trying to compare object not of type ServiceRecord")
+        return (not (self == other))
 
 
 ##################################
@@ -240,6 +256,7 @@ class Address:
 
 class UserRecord(Address):
     def __init__(self, *args):
+        super(UserRecord, self).__init__()
         arg_len = len(args)
         if (arg_len != 0 and arg_len != 1 and arg_len != 3 and arg_len != 6): # Check to make sure valid number of arguments
             raise ValueError("Incorrect number of arguments when initializing UserRecord")
@@ -262,17 +279,16 @@ class UserRecord(Address):
         super()._default_constructor()
         self._name = None
         self._ID = None
-        self._services = []
+        self.services = []
 
     # Copy Constructor
     def _copy_constructor(self, other):
         if not (isinstance(other, UserRecord)):
-            raise ValueError("Other is not of type Address in copy constructor")
+            raise ValueError("Other is not of type UserRecord in copy constructor")
         super()._copy_constructor(other)
         self.name = other.name
         self.ID = other.ID
-        #TODO: setup service insert when ServiceRecords have been made
-        self._services = []
+        self.services = []
     
 
     # Paramaterized Constructor
@@ -280,6 +296,17 @@ class UserRecord(Address):
             super()._copy_constructor(a_address)
             self.name = a_name
             self.ID = a_ID
+
+
+    def add_service(self, new_service):
+        if not (isinstance(new_service, ServiceRecord)):
+            raise TypeError("Trying to insert non-ServiceRecord object")
+        self.services.append(new_service)
+
+    def display_services(self):
+        for service in self.services:
+            print(service)
+            print("====")
 
     def __str__(self):
         string = str(self._name + ": " + str(self._ID) + '\n')
@@ -316,7 +343,7 @@ class UserRecord(Address):
             raise ValueError("Invalid number of digits in set ID")
         self._ID = int(new_id)
 
-    #TODO: Add service list functionality
+
         
 ##################################
 #
@@ -326,6 +353,7 @@ class UserRecord(Address):
         
 class MemberRecord(UserRecord):
     def __init__(self, *args):
+        super(MemberRecord, self).__init__()
         arg_len = len(args)
         if (arg_len != 0 and arg_len != 1 and arg_len != 3 and arg_len != 6): # Check to make sure valid number of arguments
             raise ValueError("Incorrect number of arguments when initializing UserRecord")
@@ -412,6 +440,7 @@ class MemberRecord(UserRecord):
 class ProviderRecord(UserRecord):
 
     def __init__(self, *args):
+        super(ProviderRecord, self).__init__()
         arg_len = len(args)
         if (arg_len != 0 and arg_len != 1 and arg_len != 3 and arg_len != 6): # Check to make sure valid number of arguments
             raise ValueError("Incorrect number of arguments when initializing UserRecord")
@@ -464,6 +493,15 @@ class ProviderRecord(UserRecord):
         string += ("Consultations: " + str(self.num_constultations))
         string += ("Total Payment Due: " + str(self.total_payment))
 
+    def __eq__(self, other):
+        if not (isinstance(other, ProviderRecord)):
+            raise ValueError("Trying to compare object not of type ProviderRecord")
+        return super().__eq__(other)
+    
+    def __ne__(self, other):
+        if not (isinstance(other, ProviderRecord)):
+            raise ValueError("Trying to compare object not of type ProviderRecord")
+        return super().__ne__(other)
 
     @property
     def num_consultations(self):
