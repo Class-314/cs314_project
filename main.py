@@ -2,6 +2,7 @@
 from Records import Address
 from Records import UserRecord
 from Records import MemberRecord
+from Reporter import Reporter
  
 if __name__ == "__main__":
     a1 = Address("10 Hollywood blvd", "Los Angeles", "CA", "97305")
