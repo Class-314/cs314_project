@@ -13,7 +13,7 @@ def a_obj():
 
 @pytest.fixture
 def m_obj(a_obj):
-    m = Records.MemberRecord("Richard Simmons", 123456, a_obj)
+    m = Records.MemberRecord("Richard Simmons", 123456123, a_obj)
     return m
 
 
@@ -35,6 +35,9 @@ def test_default_constructor():
 def test_copy_constructor(m_obj, a_obj):
     mr = Records.MemberRecord(m_obj)
     assert mr._is_suspended == False
+    m_obj.suspend_membership()
+    mr = Records.MemberRecord(m_obj)
+    assert mr._is_suspended == True
 
 def test_copy_constructor_exceptions(m_obj, a_obj):
     inputs = [1, "test", 3.14, a_obj]
@@ -45,11 +48,33 @@ def test_copy_constructor_exceptions(m_obj, a_obj):
 
 
 def test_param_constructor(a_obj):
-    mr = Records.MemberRecord("Dick Nixon", 999999, a_obj)
+    mr = Records.MemberRecord("Dick Nixon", 999999123, a_obj)
     assert mr._name == "Dick Nixon"
-    assert mr._ID == 999999
+    assert mr._ID == 999999123
+    assert mr._is_suspended == False
     a = Records.Address(mr)
     assert a == a_obj
+
+def test_eq_ne(m_obj):
+    mr = Records.MemberRecord(m_obj)
+    assert mr == m_obj
+    mr.suspend_membership()
+    assert mr != m_obj
+
+# not technically necessary since the parent classes handle exceptions and those have already been tested
+def test_eq_ne_exceptions(m_obj):
+    mr = Records.MemberRecord(m_obj)
+    inputs = [1, "test", 3.14]
+    for i in inputs:
+        with pytest.raises(ValueError):
+            if (mr == i):
+                print()
+    for i in inputs:
+        with pytest.raises(ValueError):
+            if (mr != i):
+                print()
+
+
 
 
 def test_convert_status(m_obj):
