@@ -36,8 +36,8 @@ class DatabaseMgr:
         self._active_providers = []
         
     def _display_service(self): #display services from service dictionary
-        for service in self._service_dict:
-            print(service)
+        for key, value in self._service_dict.items():
+            print(key, ":", value)
 
     def _populate_dict(self, filename, dict_name): #populate dict_name with information in file
         try:
@@ -58,30 +58,50 @@ class DatabaseMgr:
         return
 
     def _get_member(self, mID):
-        return
-    
-    def _get_provider(self, pID):
+        for member in self._active_members:
+            if(member._ID == mID):
+                return member
+
+        print("Member with ID", mID, "not found.")
         return
     
     def _add_member(self, new_member):
+        self._active_members.append(new_member)
         return
     
     def _edit_member(self, mID):
         return
     
     def _remove_member(self, mID):
+        for member in self._active_members:
+            if(member._ID == mID):
+                self._active_members.remove(member)
+                break
         return
     
-    def _find_member(self, mID) -> object:
+    def _find_member(self, mID) -> object: #difference between get_member() and find_member()?
         return #found member
+
+    def _get_provider(self, pID):
+        for provider in self._active_provider:
+            if(provider._ID == pID):
+                return provider
+
+        print("Provider with ID", pID, "not found.")
+        return
     
     def _add_provider(self, new_provider):
+        self._active_providers.append(new_provider)
         return
     
     def _edit_provider(self, pID):
         return
     
     def _remove_provider(self, pID):
+        for provider in self._active_providers:
+            if(provider._ID == pID):
+                self._active_members.remove(provider)
+                break
         return
     
     def _find_provider(self, pID) -> object:
