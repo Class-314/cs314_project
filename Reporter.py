@@ -1,7 +1,7 @@
 
 class Reporter:
     def __init__(self) -> None:
-        self.service_report_file = None
+        self._service_report_file = None
 
     def write_weekly_report():
         return
