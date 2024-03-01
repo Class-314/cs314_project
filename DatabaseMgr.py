@@ -57,13 +57,12 @@ class DatabaseMgr:
     def _load_provider_record(self, pID):
         return
 
-    def _get_member(self, mID):
+    def _get_member(self, mID) -> object:
         for member in self._active_members:
             if(member._ID == mID):
                 return member
 
         print("Member with ID", mID, "not found.")
-        return
     
     def _add_member(self, new_member):
         self._active_members.append(new_member)
@@ -82,13 +81,12 @@ class DatabaseMgr:
     def _find_member(self, mID) -> object: #difference between get_member() and find_member()?
         return #found member
 
-    def _get_provider(self, pID):
+    def _get_provider(self, pID) -> object:
         for provider in self._active_provider:
             if(provider._ID == pID):
                 return provider
 
         print("Provider with ID", pID, "not found.")
-        return
     
     def _add_provider(self, new_provider):
         self._active_providers.append(new_provider)
