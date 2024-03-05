@@ -10,20 +10,22 @@ class ServiceRecord:
     def __init__(self, *args):
         self._comments = None
         arg_len = len(args)
-        if (arg_len != 0 and arg_len != 1 and arg_len != 4 and arg_len !=5): # Check to make sure valid number of arguments
+        if (arg_len != 0 and arg_len != 1 and arg_len != 6 and arg_len !=7): # Check to make sure valid number of arguments
             raise ValueError("Incorrect number of arguments when initializing ServiceRecord")
         if (arg_len == 1): # 1 argument: args[0] should be another ServiceRecord object, error checking in _copy_constructor
             self._copy_constructor(args[0])
-        elif (arg_len == 4): # 4 arguments: args[0:4] should be street, city, state, zip in that order
-            self._param_constructor(args[0], args[1], args[2], args[3])
-        elif (arg_len == 5):
+        elif (arg_len == 6): 
+            self._param_constructor(args[0], args[1], args[2], args[3], args[4], args[5])
+        elif (arg_len == 7):
             self._comments = str(args[4])
-            self._param_constructor(args[0], args[1], args[2], args[3])
+            self._param_constructor(args[0], args[1], args[2], args[3], args[5], args[6])
         else: # No arguments, default constructor, should generally not be used unless you're planning on filling up the members with setters immediately after
             self._default_constructor()
 
     # Default Constructor
     def _default_constructor(self):
+        self._name = None
+        self._fee = None
         self._service_code = None
         self._mID = None
         self._pID = None
@@ -36,6 +38,8 @@ class ServiceRecord:
     def _copy_constructor(self, other):
         if not (isinstance(other, ServiceRecord)):
             raise ValueError("Other is not of type ServiceRecord in copy constructor")
+        self._name = other._name
+        self._fee = other._fee
         self._service_code = other._service_code
         self._mID = other._mID
         self._pID = other._pID
@@ -44,7 +48,9 @@ class ServiceRecord:
         self._current_datetime = other._current_datetime
 
     # Paramaterized Constructor
-    def _param_constructor(self, a_service_code, a_pID, a_mID, a_date):
+    def _param_constructor(self, a_service_code, a_pID, a_mID, a_date, a_name, a_fee):
+            self._name = a_name
+            self._fee = a_fee
             self.service_code = a_service_code
             self.mID = a_mID
             self.pID = a_pID
