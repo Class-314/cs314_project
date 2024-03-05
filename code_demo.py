@@ -3,6 +3,20 @@ from Records import UserRecord
 from Records import MemberRecord
 from Records import ServiceRecord
 
+def sample_load_member(id):
+    filename = ("Members/M_")
+    filename += str(id) + ".txt"
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+        mID = lines[0].strip()
+        name = lines[1].strip()
+        street = lines[2].strip()
+        city = lines[3].strip()
+        state = lines[4].strip()
+        zip = lines[5].strip()
+    
+    curr_member = MemberRecord(name, mID, street, city, state, zip)
+    print(curr_member)
 
 def exercise_records():
     a1 = Address("10 Hollywood blvd", "Los Angeles", "CA", "97305")
@@ -31,10 +45,10 @@ def exercise_records():
     print(m4)
 
 
-    s1 = ServiceRecord()
+    s1 = ServiceRecord(999999, 999888777, 444555666, "09-09-1881")
     s2 = ServiceRecord(123123, 123456789, 987654321, "12-20-2024")
     print(s2)
-    s3 = ServiceRecord(123123, 123456789, 987654321, "1-1-1", "These are some comments")
+    s3 = ServiceRecord(123222, 123456789, 987654321, "1-1-1", "These are some comments")
     print(s3)
     s4 = ServiceRecord(s3)
     s4._comments += " Additional comments"
@@ -48,4 +62,24 @@ def exercise_records():
 
     print("=====================")
     m4.display_services()
+
+    m5 = MemberRecord(m4)
+    #m5 = m4
+
+    #curr_member = MemberRecord(DBmgr.getMember(MemberID))
+
+    m5._name = "NEW NAME"
+    m5._ID = 909090901
+
+    m5.add_service(s1)
+
+    print ("====== MEMBER 5 =========")
+    print(m5)
+    m5.display_services()
+
+
+    print ("========== MEMBER 4 =======")
+    print(m4)
+    m4.display_services()
+
 
