@@ -13,7 +13,7 @@ def a_obj():
 
 @pytest.fixture
 def u_obj(a_obj):
-    u = Records.UserRecord("Richard Simmons", 123456, a_obj)
+    u = Records.UserRecord("Richard Simmons", 123456789, a_obj)
     return u
 
 
@@ -36,7 +36,7 @@ def test_default_constructor():
 def test_copy_constructor(u_obj, a_obj):
     ur = Records.UserRecord(u_obj)
     assert ur._name == "Richard Simmons"
-    assert ur._ID == 123456
+    assert ur._ID == 123456789
     # Inheritance testing, not strictly necessary
     ad = Records.Address(u_obj)
     assert ad == a_obj
@@ -57,24 +57,24 @@ def test_copy_constructor_exceptions(u_obj, a_obj):
 
 def test_param_constructor(a_obj):
     # param with address object
-    ur = Records.UserRecord("Bill Gates", 999999, a_obj)
+    ur = Records.UserRecord("Bill Gates", 999999123, a_obj)
     assert ur._name == "Bill Gates"
-    assert ur._ID == 999999
+    assert ur._ID == 999999123
     ad = Records.Address(ur)
     assert ad == a_obj
     
     # param with individual fields
-    ur = Records.UserRecord("Alan Turing", 123123, "1 main st.", "portland", "or", 97202)
+    ur = Records.UserRecord("Alan Turing", 123123123, "1 main st.", "portland", "or", 97202)
     assert ur._name == "Alan Turing"
-    assert ur._ID == 123123
+    assert ur._ID == 123123123
     ad = Records.Address(ur)
     ad2 = Records.Address("1 main st.", "portland", "OR", 97202)
     assert ad == ad2
 
     # param with uncapitalized input field and string ID
-    ur = Records.UserRecord("jake smith", "111111", a_obj)
+    ur = Records.UserRecord("jake smith", "111111123", a_obj)
     assert ur._name == "Jake Smith"
-    assert ur._ID == 111111
+    assert ur._ID == 111111123
 
 
 def test_eq_ne(u_obj):
@@ -83,7 +83,7 @@ def test_eq_ne(u_obj):
     ur.name = "no"
     assert ur != u_obj
     ur = Records.UserRecord(u_obj)
-    ur.ID = 585858
+    ur.ID = 585858123
     assert ur != u_obj
 
 def test_eq_ne_exceptions(u_obj, a_obj):
@@ -100,11 +100,11 @@ def test_eq_ne_exceptions(u_obj, a_obj):
 def test_setters(u_obj):
     u_obj.name = "richard hendrix"
     assert u_obj.name == "Richard Hendrix"
-    u_obj.ID = "808080"
-    assert u_obj.ID == 808080
+    u_obj.ID = "808080123"
+    assert u_obj.ID == 808080123
 
 def test_setters_exceptions(u_obj):
-    inputs = [1, 12312, 1231234, "1", "12312", "12341234"]
+    inputs = [1, 12312, 1231234, 123123, "1", "12312", "12341234"]
 
     with pytest.raises(ValueError):
         u_obj.name = 1
