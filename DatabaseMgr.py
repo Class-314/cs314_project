@@ -32,9 +32,7 @@ class DatabaseMgr:
         try:
             with open(filename, 'r') as file:
                 for line in file: #update for a list, need file format
-                    #key, value = line.strip().split(':') #
-                    #dict_name[key.strip()] = value.strip()
-                    break
+                    self._service_dir.append(line)
 
         except FileNotFoundError:
             print("File not found.")

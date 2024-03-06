@@ -13,7 +13,7 @@ def test_default_constructor():
     assert obj._active_members == []
     assert obj._active_providers == []
 
-def test_copy_constructor():
+def test_copy_constructor(other):
     obj = DatabaseMgr.DatabaseMgr()
     obj._service_dir = ['Service1', 'Service2', 'Service3']
     obj._active_members = ['123456', '654321']
@@ -35,7 +35,7 @@ def test_init_raises_exceptions():
     assert str(e.value) == "Incorrect number of arguments when initializing DatabaseMgr"
 
 def test_display_service():
-    obj = DatabaseMgr()
+    obj = DatabaseMgr.DatabaseMgr()
     obj._service_dir = ['Service1', 'Service2', 'Service3']
 
     # Use patch to mock the standard output
