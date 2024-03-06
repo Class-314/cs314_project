@@ -1,8 +1,0 @@
-123 Main St
-Anytown
-CA
-12345
-Jim Bow
-123456789
-False
-=
