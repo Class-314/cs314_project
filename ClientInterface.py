@@ -2,6 +2,7 @@
 # Import ProviderRecord
 # Import MemberRecord
 # Import DatabaseMgr
+from Records import *
 
 class ClientInterface:
     # Initialize the ClientInterface with optional member and provider IDs
@@ -10,6 +11,8 @@ class ClientInterface:
         self.current_member = None  # Instance of MemberRecord for the current member
         # self.DB_mgr = DatabaseMgr()  # Instance of Database Manager for DB operations
 
+
+    # display the menu choices
     def display_menu(self, menu_type):
         menu_functions = {
             "provider": self.provider_menu,
@@ -17,8 +20,12 @@ class ClientInterface:
         }
         menu_function = menu_functions.get(menu_type, lambda: print("Invalid menu type"))
         menu_function()
+    
+    def display_provider_menu(self):
+        if not self.verify_provider_input():
+            print("Exiting to main menu.")
+            return
 
-    def provider_menu(self):
         while True:
             print("\nProvider Menu")
             print("1. Provider Option A")
@@ -27,16 +34,14 @@ class ClientInterface:
             choice = input("\nChoose an option: ")
 
             if choice == '1':
-                # Implement Provider Option A functionality
                 print("\nProvider Option A Selected")
             elif choice == '2':
-                # Implement Provider Option B functionality
                 print("\nProvider Option B Selected")
             elif choice == '9':
                 break
             else:
                 print("\nInvalid option. Please try again.")
-    
+
     def manager_menu(self):
             while True:
                 print("\nManager Menu")
@@ -55,13 +60,34 @@ class ClientInterface:
                     break  # Exit loop to return to the main menu
                 else:
                     print("\nInvalid option. Please try again.")
+    
+    def verify_provider_input(self):
+        while True:
+            user_input = input("\nEnter Provider ID: ")
+            if user_input.isdigit() and len(user_input) == 9:
+                temp_provider = self.verify_provider(user_input)
+                if temp_provider:
+                    self.update_current_provider(temp_provider)
+                    return True
+                else:
+                    print("Provider ID not found.")
+            else:
+                print("Error: Provider ID must be an integer and 9 digits long.")
 
-    # Placeholder methods for verify_provider, verify_member, etc.
-    '''
+            try_again = input("Do you want to try again? (y/n): ").lower()
+            if try_again != 'y':
+                return False
+   
     # Verify provider's ID against the database
     def verify_provider(self, pID):
         # Implement provider verification logic here
-        return self.DB_mgr.verify_provider(pID)
+        return self.DB_mgr._get_provider(pID)
+    
+     # Update the current provider based on the given provider ID
+    def update_current_provider(self, temp_provider):
+        # Update current provider logic here
+         self.current_provider = ProviderRecord.copy_constructor(temp_provider)
+    '''
 
     # Verify member's ID for authenticity
     def verify_member(self, mID):
@@ -77,11 +103,6 @@ class ClientInterface:
     def update_current_member(self, mID):
         # Update current member logic here
         self.current_member = self.DB_mgr.get_member_record(mID)
-
-    # Update the current provider based on the given provider ID
-    def update_current_provider(self, pID):
-        # Update current provider logic here
-        self.current_provider = self.DB_mgr.get_provider_record(pID)
 
     # Return the record of the currently selected member
     def get_current_member(self):
