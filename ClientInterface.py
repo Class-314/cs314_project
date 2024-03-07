@@ -22,22 +22,44 @@ class ClientInterface:
         menu_function()
     
     def display_provider_menu(self):
+        # Enter and verify provider ID 
         if not self.verify_provider_input():
             print("Exiting to main menu.")
             return
+        
+        # Enter and verify member ID
+        if not self.verify_member_input():
+            print("Exising to main menu.")
+            return
 
+        # If provider and member ID are provided, show menu. 
         while True:
+            # print menu
             print("\nProvider Menu")
-            print("1. Provider Option A")
-            print("2. Provider Option B")
-            print("9. Return to Main Menu")
+            
+            # print current provder
+
+            # print current member
+
+            # print provider menu
+            print("0. Return to Main Menu")
+            print("1. Display Provider Information")
+            print("2. Display Member Information")
+            print("3. Display Service Record Directory")
+            print("4. Enter Service Record")
+            print("5. Change Current Member ID")
+            print("6. Change Current Provider ID")
             choice = input("\nChoose an option: ")
 
             if choice == '1':
-                print("\nProvider Option A Selected")
+                print("\nDisplay Provider Information")
             elif choice == '2':
-                print("\nProvider Option B Selected")
-            elif choice == '9':
+                print("\nDisplay Member Information")
+            elif choice == '3':
+                print("\nDisplay Member Information")
+            elif choice == '4':
+                print("\nDisplay Service Record Directory")                
+            elif choice == '0':
                 break
             else:
                 print("\nInvalid option. Please try again.")
@@ -61,6 +83,7 @@ class ClientInterface:
                 else:
                     print("\nInvalid option. Please try again.")
     
+    # Verify user input for provider id
     def verify_provider_input(self):
         while True:
             user_input = input("\nEnter Provider ID: ")
@@ -77,32 +100,47 @@ class ClientInterface:
             try_again = input("Do you want to try again? (y/n): ").lower()
             if try_again != 'y':
                 return False
-   
+    
     # Verify provider's ID against the database
     def verify_provider(self, pID):
-        # Implement provider verification logic here
         return self.DB_mgr._get_provider(pID)
     
-     # Update the current provider based on the given provider ID
+    # Update the current provider based on the given provider ID
     def update_current_provider(self, temp_provider):
         # Update current provider logic here
          self.current_provider = ProviderRecord.copy_constructor(temp_provider)
-    '''
+    
+    # Verify user input for member id
+    def verify_member_input(self):
+        while True:
+            user_input = input("\nEnter Member ID: ")
+            if user_input.isdigit() and len(user_input) == 9:
+                temp_member = self.verify_member(user_input)
+                if temp_member:
+                    self.update_current_member(temp_member)
+                    return True
+                else:
+                    print("Member ID not found.")
+            else:
+                print("Error: Member ID must be an integer and 9 digit long.")
 
-    # Verify member's ID for authenticity
+            try_again = input("Do you want to try again? (y/n): ").lower()
+            if try_again != 'y':
+                return False
+    
+    # Verify member's ID against the database
     def verify_member(self, mID):
-        # Implement member verification logic here
         return self.DB_mgr.verify_member(mID)
-
+    
+    # Set the current member based on the given member ID
+    def update_current_member(self, temp_member):
+        self.current_member = MemberRecord.copy_constructor(temp_member)
+    '''
+    
     # Confirm if a service code exists in the system
     def verify_service(self, service_code):
         # Implement service verification logic here
         return self.DB_mgr.verify_service(service_code)
-
-    # Set the current member based on the given member ID
-    def update_current_member(self, mID):
-        # Update current member logic here
-        self.current_member = self.DB_mgr.get_member_record(mID)
 
     # Return the record of the currently selected member
     def get_current_member(self):
