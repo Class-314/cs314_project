@@ -1,14 +1,15 @@
 # Imports
 from datetime import datetime
 from Records import *
-#from DataBaseManager import * 
+from DataBaseManager import * 
 
 class ClientInterface:
     # Initialize the ClientInterface with optional member and provider IDs
     def __init__(self, member_ids=None, provider_ids=None):
         self.current_provider = None  # Instance of ProviderRecord for the current provider
         self.current_member = None  # Instance of MemberRecord for the current member
-        # self.DataBaseManager = DatabaseMgr()  # Instance of Database Manager for DB operations
+        # Instance of Database Manager for DB operations
+        self.DB_mgr = DatabaseManager() 
 
     # display the menu choices
     def display_menu(self, menu_type):
@@ -19,7 +20,7 @@ class ClientInterface:
         menu_function = menu_functions.get(menu_type, lambda: print("Invalid menu type"))
         menu_function()
     
-    def display_provider_menu(self):
+    def provider_menu(self):
         # Enter and verify provider ID 
         if not self.verify_provider_input():
             print("Exiting to main menu.")
@@ -81,21 +82,26 @@ class ClientInterface:
             #choice 5
             elif choice == '5':
                 print("\nChange Current Member ID")
-                # make sure the member id is valid
-
-                # make sure the current member id is changed
-
-                # else exit to main menu
-            #choice 6
+                # Call the verify_member_input method and check if the result is True
+                if self.verify_member_input():
+                    print("Successfully changed Member ID.")
+                else:
+                    # If verify_member_input returns False, indicate failure and exit to the main menu
+                    print("Failed to change Member ID. Exiting to Main Menu.")
+                    break
+            # choice 6
             elif choice == '6':
                 print("\nChange Current Provider ID")
-                # make sure the provider id is valid
-
-                # make sure the current provider id is changed
-
-                # else exit to main menu
-            # choice 0 
+                # Call the verify_provider_input method and check if the result is True
+                if self.verify_provider_input():
+                    print("Successfully changed Provider ID.")
+                else:
+                    # If verify_provider_input returns False, indicate failure and exit to the main menu
+                    print("Failed to change Provider ID. Exiting to Main Menu.")
+                    break
+            # choice 0
             elif choice == '0':
+                # Exit the loop/menu
                 break
             else:
                 print("\nInvalid option. Please try again.")
@@ -119,15 +125,31 @@ class ClientInterface:
                 else:
                     print("\nInvalid option. Please try again.")
     
-    # Verify user input for provider id
+    # Check if the provider ID exists 
+    def verify_provider_exists(self, provider_id):
+        if self.DB_mgr.ID_exists(provider_id):
+            return True
+        else:
+            return False
+    
+    # Fetch the provider record
+    def get_provider(self, provider_id):   
+        return self.DB_mgr.get_provider_record(provider_id)
+    
+    # Validate user input, verify the provider ID exists, fetch provider record
     def verify_provider_input(self):
         while True:
             user_input = input("\nEnter Provider ID: ")
             if user_input.isdigit() and len(user_input) == 9:
-                temp_provider = self.verify_provider(user_input)
-                if temp_provider:
-                    self.update_current_provider(temp_provider)
-                    return True
+                # Verify if the provider ID exists
+                if self.verify_provider_exists(user_input):
+                    # Fetch the provider object since ID exists
+                    temp_provider = self.get_provider(user_input)
+                    if temp_provider:
+                        self.update_current_provider(temp_provider)
+                        return True
+                    else:
+                        print("Unexpected error retrieving provider details.")
                 else:
                     print("Provider ID not found.")
             else:
@@ -137,55 +159,63 @@ class ClientInterface:
             if try_again != 'y':
                 return False
     
-    # Verify provider's ID against the database and get provider object
-    def verify_provider(self, pID):
-        return self.DataBaseManager.get_provider_record(pID)
+    # Update current provider
+    def update_current_provider(self, temp_provider):   
+        self.current_provider = None
+        self.current_provider = ProviderRecord.copy_constructor(temp_provider)
+
+    # Check if the member ID exists 
+    def verify_member_exists(self, member_id):
+        if self.DB_mgr.ID_exists(member_id):
+            return True
+        else:
+            return False
     
-    # Update the current provider based on the given provider ID
-    def update_current_provider(self, temp_provider):
-        # Update current provider logic here
-         self.current_provider = ProviderRecord.copy_constructor(temp_provider)
+    # Fetch the member record 
+    def get_member(self, member_id):
+        return self.DB_mgr.get_member_record(member_id)
     
-    # Retrieve the current provider's record
-    def get_current_provider(self):
-        return self.current_provider
-    
-    # Verify user input for member id
+    # Validate user input, verify the member ID exists, fetch member record
     def verify_member_input(self):
         while True:
             user_input = input("\nEnter Member ID: ")
             if user_input.isdigit() and len(user_input) == 9:
-                temp_member = self.verify_member(user_input)
-                if temp_member:
-                    self.update_current_member(temp_member)
-                    return True
+                if self.verify_member_exists(user_input):
+                    temp_member = self.get_member(user_input)
+                    if temp_member:
+                        self.update_current_member(temp_member)
+                        return True
+                    else:
+                        print("Unexpected error retrieving member details.")
                 else:
                     print("Member ID not found.")
             else:
-                print("Error: Member ID must be an integer and 9 digit long.")
+                print("Error: Member ID must be an integer and 9 digits long.")
 
             try_again = input("Do you want to try again? (y/n): ").lower()
             if try_again != 'y':
                 return False
     
-    # Verify member's ID against the database and get member object
-    def verify_member(self, mID):
-        return self.DataBaseManager.get_member_record(mID)
-    
-    # Set the current member based on the given member ID
+    # update current member 
     def update_current_member(self, temp_member):
+        self.current_member = temp_member
         self.current_member = MemberRecord.copy_constructor(temp_member)
 
-    # Return the record of the current member
+    # Retrieve the current provider's record
+    def get_current_provider(self):
+        return self.current_provider
+
+    # Retrieve the current member's record
     def get_current_member(self):
         return self.current_member
     
     # Display the service record directory
     def display_service_record(self):
-        return self.DataBaseManager.display_service_directory()
+        return self.DB_mgr.display_service_directory()
     
     # Confirm if a service code exists in the system
-    # def verify_service(self):
+    def verify_service(self, name, sid):
+        return self.DB_mgr.is_service(name, sid)
     
     # Log a service provided by the current provider to the current member
     def write_service(self):
@@ -219,9 +249,11 @@ class ClientInterface:
                     return  # Exit the method if the user does not want to try again
 
             # Check with the database manager if the service code already exists
-            if self.DataBaseManager.is_service(service_name, service_code):
-                break  # Service code is valid and does not already exist, break out of the main loop
+            if not self.DB_mgr.is_service(service_name, service_code):
+                # Service code does not already exist, it's valid for new entry
+                break  # Break out of the loop, ready for new entry
             else:
+                # Service code already exists in the database, ask for a new one
                 print("Error: The service code already exists in the database. Please enter a new service name and service code.")
 
         while True:
@@ -246,9 +278,6 @@ class ClientInterface:
             else:
                 print("Error: The service comment must be 100 characters or less.")
 
-        # Get current time and date in format (MM-DD-YYYY HH:MM:SS)
-        service_date_current = datetime.now().strftime("%m-%d-%Y %H:%M:%S")
-
         # Get user input for service date in format (MM-DD-YYYY)
         while True:
             service_date_str = input("\nEnter the Service Date (MM-DD-YYYY): ")
@@ -259,20 +288,19 @@ class ClientInterface:
             except ValueError:
                 print("The date entered is invalid or does not match the format MM-DD-YYYY. Please try again.")
         try:
-                # Create ServiceRecord object. Adjust according to your ServiceRecord class constructor or factory method
+                # Create ServiceRecord object. 
                 temp_service = ServiceRecord(
-                    service_name,
                     service_code,
-                    service_fee,
-                    service_member,  
-                    service_provider,  
+                    service_provider, 
+                    service_member, 
+                    service_date_str,
                     service_comment,
-                    service_date_current,
-                    service_date_str
+                    service_name,
+                    service_fee,                   
                 )
 
-                # Attempt to update the service directory via the Database Manager
-                update_success = self.DataBaseManager.update_service_directory(temp_service)
+                # Attempt to add the service record via the Database Manager
+                update_success = self.DB_mgr.add_service_record(temp_service)
                 
                 if update_success:
                     print("Service successfully updated in the directory.")
