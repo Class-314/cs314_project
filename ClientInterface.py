@@ -333,7 +333,7 @@ class ClientInterface:
                 # Check if a comment was provided by the user
                 if service_comment:  
                     # Create the ServiceRecord object with the comment
-                    service_record = ServiceRecord(service_code, service_provider, service_member, service_date_str, service_name, service_fee, service_comment)
+                    service_record = ServiceRecord(service_code, service_provider.ID, service_member.ID, service_date_str, service_name, service_fee, service_comment)
                 else:
                     # Create the ServiceRecord object without the comment
                     service_record = ServiceRecord(service_code, service_provider.ID, service_member.ID, service_date_str, service_name, service_fee)
