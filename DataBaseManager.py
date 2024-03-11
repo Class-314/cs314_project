@@ -1,9 +1,15 @@
 import sys
 import os
+import glob
 import bisect
 from pprint import pprint
 from Records import *
+import random
+import string
+import datetime
+import re
 
+#test
 #holds directory of serivices name/id/fee
 class DatabaseManager:
 
@@ -14,7 +20,7 @@ class DatabaseManager:
         self.directory_file = "services.txt" # name of file for service directory
 
 
-        # Relative Paths #
+        # Relative Paths spawning from inside programs directory#
         self.MemberRecords_relative_path = "Data/UserRecords/MemberRecords/"
         self.ProviderRecords_relative_path = "Data/UserRecords/ProviderRecords/"
         self.ServiceRecords_relative_path = "Data/ServiceRecords/"
@@ -62,11 +68,10 @@ class DatabaseManager:
             return False # Return False or an appropriate value to indicate the file already exists
         else:
             with open(self.Registerd_IDs_relative_path, 'a') as file:
-                file.write(f"{ID:}\n")
+                file.write(f"{ID}\n")
             
-            self.IDs[str(ID)] = ""
-
         return True
+
 
     def get_members_dict(self,instance):
         members_dict = {}
@@ -105,23 +110,43 @@ class DatabaseManager:
                 "Zip": to_add_record.zip,
                 "Name": to_add_record.name,
                 "ID": to_add_record.ID,
-                "Number Consultations": to_add_record.num_consultations,
-                "Total Payment": to_add_record.total_payment
+#                "Number Consultations": to_add_record.num_consultations,
+                #"Total Payment": to_add_record.total_payment
             }
             return data_dict
+        elif isinstance(to_add_record, ServiceRecord):
+            data_dict = {
+                #"Fee": to_add_record._fee,
+                "Service Code": to_add_record.service_code,
+                "Provider ID": to_add_record.pID,
+                "Member ID": to_add_record.mID,
+                #"Comments": to_add_record.comments,
+                "Date Provided": to_add_record.date_provided,
+                "Current DateTime": to_add_record.current_datetime
+            }
+            return data_dict
+
         return None
 
 
+    def generate_random_ID(self):
+        # Define the character set including digits and asterisks
+        char_set = string.digits 
 
+        # Generate a random ID of length 9
+        new_ID = ''.join(random.choice(char_set) for _ in range(9))
 
+        # Check if the ID already exists
+        while new_ID in self.IDs:
+            new_ID = ''.join(random.choice(char_set) for _ in range(9))
+
+        return new_ID
+
+    
 
     # Check if the ID exists in the dictionary
     def ID_exists(self,ID):
-        if str(ID) in self.IDs:
-            return True
-            
-        else:
-            return False
+        return str(ID) in self.IDs
 
 ##################################################################################################
 ################################ Member, Provider, ADMIN records Methods #######################################
@@ -132,8 +157,11 @@ class DatabaseManager:
     def add_member_record(self, to_add_record):
 
         data_dict = self.package_into_dict(to_add_record)
-        file_name = data_dict["ID"]
-        file_name_with_prefix = "U" + str(file_name) + ".txt"
+#       file_name = data_dict["ID"]
+        file_name = self.generate_random_ID()
+        
+        
+        file_name_with_prefix = "M" + str(file_name) + ".txt"
         relative_file_path = self.MemberRecords_relative_path + file_name_with_prefix
 
         # Check if the ID already exists
@@ -149,7 +177,7 @@ class DatabaseManager:
                     file.write(f"{value}\n")
 
                 file.write("=\n")
-
+    
             self.register_ID(file_name)
         
             print(f"Member Record successfully uploaded to the database")
@@ -159,8 +187,8 @@ class DatabaseManager:
     def add_provider_record(self, to_add_record):
 
         data_dict = self.package_into_dict(to_add_record)
-        file_name = data_dict["ID"]
-        print(file_name)
+        #file_name = data_dict["ID"]
+        file_name = self.generate_random_ID()
         file_name_with_prefix = "P" + str(file_name) + ".txt"
         relative_file_path = self.ProviderRecords_relative_path + file_name_with_prefix
 
@@ -188,7 +216,7 @@ class DatabaseManager:
         # Convert the record to a dictionary
         data_dict = self.package_into_dict(to_remove_record)
         file_name = data_dict["ID"]
-        file_name_with_prefix = "U" + str(file_name) + ".txt"
+        file_name_with_prefix = "M" + str(file_name) + ".txt"
         relative_file_path = self.MemberRecords_relative_path + file_name_with_prefix
 
         # Check if the file exists
@@ -226,13 +254,14 @@ class DatabaseManager:
         else:
             print(f"Provider Record with ID {file_name} does not exist in the database. No record was removed.")
             return False # Return False or an appropriate value to indicate the file does not exist
-
+    
+    
 
     def get_member_record(self, to_add_record):
 
         data_dict = self.package_into_dict(to_add_record)
         file_name = data_dict["ID"]
-        file_name_with_prefix = "U" + str(file_name) + ".txt"
+        file_name_with_prefix = "M" + str(file_name) + ".txt"
         relative_file_path = self.MemberRecords_relative_path + file_name_with_prefix
 
         # Check if the file exists
@@ -284,8 +313,8 @@ class DatabaseManager:
                         zip_code = lines[3].strip()
                         name = lines[4].strip()
                         ID = lines[5].strip()
-                        consultations=int(lines[6].strip())
-                        t_payment=float(lines[7].strip())
+                        #consultations=int(lines[6].strip())
+                        #t_payment=float(lines[7].strip())
                         # Create a MemberRecord object with the data and return
                         an_address = Address(street,city,state,zip_code )
                         Provrecord = ProviderRecord(name,ID,an_address) 
@@ -304,9 +333,8 @@ class DatabaseManager:
     def edit_member_record(self, to_update_record):
         try:
             data_dict = self.package_into_dict(to_update_record)
-            print(data_dict)
             file_name = data_dict["ID"]
-            file_name_with_prefix = "U" + str(file_name) + ".txt"
+            file_name_with_prefix = "M" + str(file_name) + ".txt"
             relative_file_path = self.MemberRecords_relative_path + file_name_with_prefix
 
             # Check if the file exists
@@ -342,7 +370,6 @@ class DatabaseManager:
     def edit_provider_record(self, to_update_record):
         try:
             data_dict = self.package_into_dict(to_update_record)
-            print(data_dict)
             file_name = data_dict["ID"]
             file_name_with_prefix = "P" + str(file_name) + ".txt"
             relative_file_path = self.ProviderRecords_relative_path + file_name_with_prefix
@@ -361,8 +388,8 @@ class DatabaseManager:
                 lines[3] = f"{data_dict['Zip']}\n"
                 lines[4] = f"{data_dict['Name']}\n"
                 lines[5] = f"{data_dict['ID']}\n"
-                lines[7] = f"{data_dict['Number Consultations']}\n"
-                lines[8] = f"{data_dict['Total Payment']}\n"
+                #lines[7] = f"{data_dict['Number Consultations']}\n"
+                #lines[8] = f"{data_dict['Total Payment']}\n"
 
                 # Write the updated lines back to the file
                 with open(relative_file_path, 'w') as file:
@@ -376,6 +403,8 @@ class DatabaseManager:
         except Exception as e:
             print(f"An error occurred: {e}")
             return False
+
+
 
 
     #-------------Client---------------#
@@ -399,7 +428,8 @@ class DatabaseManager:
         else:
             print("Item is neither a ProviderRecord nor a MemberRecord.")
             return False
-
+    
+    
     def get_user_record(self, to_get_record):
         if isinstance(to_get_record, ProviderRecord):
             return self.get_provider_record(to_get_record)
@@ -427,6 +457,100 @@ class DatabaseManager:
 
 
 
+#-------------Backend Work---------------#
+
+                
+
+    def update_member_with_service_record_fname(self,ID,fname):
+
+        file_name_with_prefix = "M" + str(ID) + ".txt"
+        relative_file_path = self.MemberRecords_relative_path + file_name_with_prefix
+
+
+        if(os.path.exists(relative_file_path) ==False):
+                sys.stderr.write("\nMemeber Record not found. Unable to link Service Record to Member\n")
+                return False
+
+        with open(relative_file_path, 'a') as file:
+            file.write(f"{fname}\n")
+
+        return True
+
+    def update_provider_with_service_record_fname(self,ID,fname):
+
+        file_name_with_prefix = "P" + str(ID) + ".txt"
+        relative_file_path = self.ProviderRecords_relative_path + file_name_with_prefix
+
+
+        if(os.path.exists(relative_file_path) ==False):
+                sys.stderr.write("\nProvider Record not found. Unable to link Service Record to Provider\n")
+                return False
+        
+        with open(relative_file_path, 'a') as file:
+            file.write(f"{fname}\n")
+
+        return True
+
+
+
+#-------------Client---------------#
+
+    def add_service_record(self,to_add_record):
+
+        if isinstance(to_add_record, ServiceRecord) == False:
+            print("Item is not a ServiceRecord.")
+            return False
+
+        data_dict = self.package_into_dict(to_add_record)
+
+        # List all existing files that match the pattern
+        existing_files = glob.glob(f"{self.ServiceRecords_relative_path}/SR*.txt")
+
+        # Extract the integer part from the filename, if possible
+        existing_numbers = []
+        for f in existing_files:
+            match = re.search(r'SR(\d+)_', f)
+            if match:
+                existing_numbers.append(int(match.group(1)))
+
+
+        # Find the maximum number if any files exist, or start with 0 if the directory is empty
+        next_number = max(existing_numbers, default=0) + 1 if existing_numbers else 0
+
+
+        #Get the current date
+        now = datetime.datetime.now()
+
+        # Format the date as MM-DD-YYYY without dashes
+        formatted_date = now.strftime("%m%d%Y")
+
+        # Construct the new filename with the incremented number
+        new_filename_with_prefix = f"SR{next_number}_{formatted_date}.txt"
+
+        relative_file_path = self.ServiceRecords_relative_path + new_filename_with_prefix
+
+
+        # Check if the ID already exists
+        value = self.ID_exists(relative_file_path)
+        if value ==True:
+
+                    print("The Service Record already exists on File. No new record will be created.")
+                    return False # Return False or an appropriate value to indicate the file already exists
+        else:
+            with open(relative_file_path, 'w') as file:
+
+                for key, value in data_dict.items():
+                    file.write(f"{value}\n")
+
+        print(f"Serivce Record successfully uploaded to the database")
+
+        m_update= self.update_member_with_service_record_fname(to_add_record.mID,new_filename_with_prefix) 
+        p_update =self.update_provider_with_service_record_fname(to_add_record.pID,new_filename_with_prefix)
+    
+        if m_update== False or p_update == False:
+            return False
+        else:
+            return True
 
 
 ##################################################################################################
@@ -489,8 +613,10 @@ class DatabaseManager:
             
         return True
 
+    
 
     def insert_directory_service(self,name,sid,fee):
+
 
         for element in self.directory:
             if element[0] == name:
@@ -503,14 +629,22 @@ class DatabaseManager:
 
         element = [name,sid,fee]
 
-
+        # Find the insertion point for the new element
         bisect.insort(self.directory , element , key=lambda x: x[0])
+
         print(f"The Service '{name}:{sid}:{fee}' has been added into the Service Directory")
 
         self.update_file()
 
         return True
 
+
+    def is_service(self,name,sid):
+        # Assuming self.directory is the list of sublists you're traversing
+        for service in self.directory:
+            if service[1] == sid and service[0]==name:
+                return True 
+        return False # Return None if no matching service is found
 
 
 
@@ -522,43 +656,81 @@ class DatabaseManager:
                 del self.directory[index]
                 self.update_file()
                 return True # Indicate that the service was successfully removed
-
-
         print(f"Service ID '{sid}' is not associated with a Serivce in the Service Directory")
         return False # Indicate that no service with the given SID was found
 
+
+    
+     
     def get_directory_service(self,sid):
+        # Assuming self.directory is the list of sublists you're traversing
+        for service in self.directory:
+            if service[1] == sid:
+                return service
+        return None # Return None if no matching service is found
+    
+
+
+    def update_directory_service(self,name,sid,fee):
+
+        flag= False
+        for index, element in enumerate(self.directory):
+            if element[1] == sid:
+                flag = True
+                del self.directory[index]
         
-        pass
-        return service_dir_obj
+        if flag==True:
+            element = [name,sid,fee]
 
+            # Find the insertion point for the new element
+            bisect.insort(self.directory , element , key=lambda x: x[0])
 
-    def Update_directory_service(self,sid):
+            self.update_file()
+            print(f"The Service '{name}:{sid}:{fee}' has been edited in the Service Directory")
+
+            return True
+
+        else:
+            print(f"Service ID '{sid}' is not associated with a Serivce in the Service Directory")
+            return False 
         
-        pass
 
-
-
-
+#tests
+#data = DatabaseManager()
+""""
+#test
         
-Data= DatabaseManager()
+#seed
+ad = Address("Sw carrot RD", "Clackamas","OR","97015")
+m = MemberRecord("Jeb Bush", 100000000 ,ad)
+p = ProviderRecord("George Bush", 200000000, ad)
+serve= ServiceRecord("123456",200000000,100000000,"01-23-2024","destroyer of worlds", 123)
 
+
+#add
+data.add_user_record(m)
+data.add_user_record(p)
+
+#new update
+
+data.add_service_record(serve)
+
+"""
 
 #Service Directory Tests
 """
-Data.load_directory()
+Data.insert_directory_service("two_time","2","444")
+Data.insert_directory_service("three_time","3","444")
 Data.display_service_directory()
-Data.insert_directory_service("taco_time","12418724817249812471284","444")
-Data.insert_directory_service("taco_time","12418724817249812471284","444")
+element=Data.get_directory_service("1")
+elementa=Data.get_directory_service("45")
+Data.update_directory_service("CARRRRRR","1","444")
+Data.update_directory_service("TESTA","1442","444")
 Data.display_service_directory()
-Data.remove_directory_service("12418724817249812471284")
-Data.display_service_directory()
-Data.remove_directory_service("12418724817249812471284")
 """
 
 
 
 
 
-    
 
