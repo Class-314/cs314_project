@@ -22,10 +22,12 @@ def sample_load_member(id):
 def exercise_records():
 
 
-    a = Address("10 Main St.", "Portland", "OR", "97035")
-    p = ProviderRecord("Richard Simmons", 123456123, a)
-    print(p)
-
+    # a = Address("10 Main St.", "Portland", "OR", "97035")
+    # p = ProviderRecord("Richard Simmons", 123456123, a)
+    # print(p)
+    
+    sr = ServiceRecord(555555, 888888888, 444444444, "09-09-1991", "\n\n\n\ndietitian and test", "99.99")
+    print(sr)
     # a1 = Address("10 Hollywood blvd", "Los Angeles", "CA", "97305")
     # a2 = Address(a1)
     # a3 = Address()
