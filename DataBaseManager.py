@@ -8,6 +8,7 @@ import random
 import string
 import datetime
 import re
+import time
 
 #test
 #holds directory of serivices name/id/fee
@@ -81,7 +82,7 @@ class DatabaseManager:
         return members_dict
 
     def print_members(self,instance):
-        members_dict = get_members_dict(instance)
+        members_dict = self.get_members_dict(instance)
         for name, value in members_dict.items():
             print(f"{name}: {value}")
 
@@ -130,19 +131,44 @@ class DatabaseManager:
 
 
     def generate_random_ID(self):
-        # Define the character set including digits and asterisks
-        char_set = string.digits 
+        timestamp = int(time.time())
+        timestamp = self.shuffle_digits(timestamp)
+        rand_num = random.randint(1,999999)
+        timestamp = str(timestamp)
+        uid = timestamp[:6] + str(rand_num)[:2]
+        rand_fill = str(random.randint(1, 9))
+        uid = uid[:9].ljust(9, rand_fill)
 
-        # Generate a random ID of length 9
-        new_ID = ''.join(random.choice(char_set) for _ in range(9))
+        while uid in self.IDs:
+            timestamp = int(time.time())
+            timestamp = self.shuffle_digits(timestamp)
+            rand_num = random.randint(1,999999)
+            timestamp = str(timestamp)
+            uid = timestamp[:6] + str(rand_num)[:2]
+            rand_fill = str(random.randint(1, 9))
+            uid = uid[:9].ljust(9, rand_fill)
+        
 
-        # Check if the ID already exists
-        while new_ID in self.IDs:
-            new_ID = ''.join(random.choice(char_set) for _ in range(9))
+        return int(uid)
+        # # Define the character set including digits and asterisks
+        # char_set = string.digits 
 
-        return new_ID
+        # # Generate a random ID of length 9
+        # new_ID = ''.join(random.choice(char_set) for _ in range(9))
 
-    
+        # # Check if the ID already exists
+        # while new_ID in self.IDs:
+        #     new_ID = ''.join(random.choice(char_set) for _ in range(9))
+
+        # return new_ID
+
+
+    def shuffle_digits(self, num):
+        digits = [int(digit) for digit in str(num)]
+        random.shuffle(digits)
+        shuffled_num = int(''.join(map(str, digits)))
+        return shuffled_num
+
 
     # Check if the ID exists in the dictionary
     def ID_exists(self,ID):
@@ -158,7 +184,9 @@ class DatabaseManager:
 
         data_dict = self.package_into_dict(to_add_record)
 #       file_name = data_dict["ID"]
-        file_name = self.generate_random_ID()
+        to_add_record.ID = self.generate_random_ID()
+        data_dict["ID"] = to_add_record.ID
+        file_name = to_add_record.ID
         
         
         file_name_with_prefix = "M" + str(file_name) + ".txt"
@@ -188,7 +216,10 @@ class DatabaseManager:
 
         data_dict = self.package_into_dict(to_add_record)
         #file_name = data_dict["ID"]
-        file_name = self.generate_random_ID()
+        to_add_record.ID = self.generate_random_ID()
+        data_dict["ID"] = to_add_record.ID
+        file_name = to_add_record.ID
+
         file_name_with_prefix = "P" + str(file_name) + ".txt"
         relative_file_path = self.ProviderRecords_relative_path + file_name_with_prefix
 
