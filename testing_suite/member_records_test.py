@@ -54,6 +54,8 @@ def test_param_constructor(a_obj):
     assert mr._is_suspended == False
     a = Records.Address(mr)
     assert a == a_obj
+    mr = Records.MemberRecord("\n\n\n\nDick Nixon", 123123123, a_obj)
+    assert mr._name == "Dick Nixon"
 
 def test_eq_ne(m_obj):
     mr = Records.MemberRecord(m_obj)
@@ -93,6 +95,8 @@ def test_setters(m_obj):
     assert m_obj.is_suspended == False
     m_obj.is_suspended = True
     assert m_obj.is_suspended == True
+    m_obj.name = "\t\t\t\tAlexander Hamilton"
+    assert m_obj.name == "Alexander Hamilton"
 
 def test_setters_exceptions(m_obj, a_obj):
     inputs = [1, "2", 3.14, a_obj]

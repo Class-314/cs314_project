@@ -73,8 +73,8 @@ def test_copy_constructor_exceptions(sc_obj):
 
 
 def test_param_constructor():
-    sr = Records.ServiceRecord(123123, 123456789, 987654321, "1-1-2025", "some comments", "service name", "201.99")
-    assert sr._name == "service name"
+    sr = Records.ServiceRecord(123123, 123456789, 987654321, "1-1-2025", "\n\nsome comments", "service name", "201.99")
+    assert sr.name == "service name"
     assert sr._fee == "201.99"
     assert sr._service_code == 123123
     assert sr._pID == 123456789
@@ -96,6 +96,11 @@ def test_param_constructor():
     curr_time = datetime.datetime.now().replace(microsecond=0)
     curr_time = curr_time.strftime("%m-%d-%Y %H:%M:%S")
     assert sr._current_datetime == curr_time
+
+    sr = Records.ServiceRecord(555555, 888888888, 444444444, "09-09-1991", "\n\n\n\ndietitian", "99.99")
+    assert sr._name == "dietitian"
+    sr.name = "\t\tnutritionist"
+    assert sr._name == "nutritionist"
 
 
 def test_eq_ne(s_obj, sc_obj):

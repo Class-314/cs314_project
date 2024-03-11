@@ -18,6 +18,8 @@ class ServiceRecord:
             self._param_constructor(args[0], args[1], args[2], args[3], args[4], args[5])
         elif (arg_len == 7):
             self._comments = str(args[4])
+            strip_table = str.maketrans("", "", "\t\n\v")
+            self._comments = self._comments.translate(strip_table)
             self._param_constructor(args[0], args[1], args[2], args[3], args[5], args[6])
         else: # No arguments, default constructor, should generally not be used unless you're planning on filling up the members with setters immediately after
             self._default_constructor()
@@ -38,7 +40,7 @@ class ServiceRecord:
     def _copy_constructor(self, other):
         if not (isinstance(other, ServiceRecord)):
             raise ValueError("Other is not of type ServiceRecord in copy constructor")
-        self._name = other._name
+        self.name = other._name
         self._fee = other._fee
         self._service_code = other._service_code
         self._mID = other._mID
@@ -49,7 +51,7 @@ class ServiceRecord:
 
     # Paramaterized Constructor
     def _param_constructor(self, a_service_code, a_pID, a_mID, a_date, a_name, a_fee):
-            self._name = a_name
+            self.name = a_name
             self._fee = a_fee
             self.service_code = a_service_code
             self.mID = a_mID
@@ -80,6 +82,19 @@ class ServiceRecord:
             raise ValueError("Invalid input when setting service code")
         new_sc = int(new_sc)
         self._service_code = new_sc
+
+
+    @property
+    def name(self):
+        strip_table = str.maketrans("", "", "\t\n\v")
+        self._name = self._name.translate(strip_table)
+        return str(self._name)
+    
+    @name.setter
+    def name(self, new_name):
+        strip_table = str.maketrans("", "", "\t\n\v")
+        self._name = new_name.translate(strip_table)
+
 
     @property
     def mID(self):
@@ -128,7 +143,7 @@ class ServiceRecord:
     # str overload, similar to << overload in C++
     # lets us specify exactly what comes out when someone calls print(object)
     def __str__(self):
-        string = str(str(self._service_code) + "\nProvider ID: " + str(self._pID) + "\nMember ID: " + str(self._mID))
+        string = str(str(self.name) + '\n' + str(self._fee) + '\n' + str(self._service_code) + "\nProvider ID: " + str(self._pID) + "\nMember ID: " + str(self._mID))
         string += str("\nDate Provided: " + str(self._date_provided) + "\nDate Submitted: " + str(self._current_datetime))
         if not (self._comments is None):
             string += str('\n' + str(self._comments))
@@ -194,6 +209,8 @@ class Address:
     # The benefit is this allows us to add extra protections when they do, like making sure the values are cast to their expected type
     @property
     def street(self):
+        strip_table = str.maketrans("", "", "\t\n\v")
+        self._street = self._street.translate(strip_table)
         return str(self._street)
     
     # Setter decorator works the same. Now when someone using this class types a1.street = 1234, this will automatically cast it to a string
@@ -201,26 +218,36 @@ class Address:
     # each setter handles converting to the right type, changing formatting as needed and error checking
     @street.setter
     def street(self, new_street):
-        self._street = str(new_street).title() 
+        strip_table = str.maketrans("", "", "\t\n\v")
+        self._street = new_street.translate(strip_table)
+        self._street = str(self._street).title() 
 
     @property
     def city(self):
+        strip_table = str.maketrans("", "", "\t\n\v")
+        self._city = self._city.translate(strip_table)
         return str(self._city)
     
     @city.setter
     def city(self, new_city):
-        self._city = str(new_city).title()
+        strip_table = str.maketrans("", "", "\t\n\v")
+        self._city = new_city.translate(strip_table)
+        self._city = str(self._city.title())
 
 
     @property
     def state(self):
+        strip_table = str.maketrans("", "", "\t\n\v")
+        self._state = self._state.translate(strip_table)
         return str(self._state)
 
     @state.setter
     def state(self, new_state):
         if (len(new_state) != 2):
             raise ValueError("Invalid input when setting state")
-        self._state = str(new_state).upper() #protection in case someone does something like a1.state = "or"
+        strip_table = str.maketrans("", "", "\t\n\v")
+        self._state = new_state.translate(strip_table)
+        self._state = str(self._state).upper() #protection in case someone does something like a1.state = "or"
 
 
     @property
@@ -331,13 +358,17 @@ class UserRecord(Address):
     
     @property
     def name(self):
+        strip_table = str.maketrans("", "", "\t\n\v")
+        self._name = self._name.translate(strip_table)
         return str(self._name).title()
     
     @name.setter
     def name(self, new_name):
         if not (isinstance(new_name, str)):
             raise ValueError("Invalid type when setting name")
-        self._name = str(new_name).title()
+        strip_table = str.maketrans("", "", "\t\n\v")
+        self._name = new_name.translate(strip_table)
+        self._name = str(self._name).title()
 
     @property
     def ID(self):
