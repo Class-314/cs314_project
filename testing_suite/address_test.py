@@ -89,6 +89,11 @@ def test_setters(setup):
     assert setup._city == "Medford"
     assert setup._state == "CA"
     assert setup._zip == 22990
+    setup.street = "\t\tMain st."
+    assert setup._street == "Main St."
+    setup.city = "\n\nPortland"
+    assert setup.city == "Portland"
+
 
 
 def test_setters_raise_exceptions(setup):

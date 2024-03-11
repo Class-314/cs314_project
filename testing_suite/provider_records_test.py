@@ -62,6 +62,9 @@ def test_param_constructor(a_obj):
     a = Records.Address(pr)
     assert a == a_obj
 
+    pr = Records.ProviderRecord("\n\n\n\nDick Nixon", 999999123, a_obj)
+    assert pr._name == "Dick Nixon"
+
 def test_setters(p_obj):
     assert p_obj._num_consultations == 0
     assert p_obj._total_payment == 0.0
@@ -69,6 +72,8 @@ def test_setters(p_obj):
     assert p_obj._num_consultations == 99
     p_obj.total_payment = 999.99
     assert p_obj._total_payment == 999.99
+    p_obj.name = "\t\t\tName"
+    assert p_obj._name == "Name"
 
 def test_setters_exceptions(p_obj, a_obj):
     inputs = ["1", "test", a_obj]
