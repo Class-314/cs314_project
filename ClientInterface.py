@@ -111,15 +111,175 @@ class ClientInterface:
                 print("0. Return to Main Menu")
                 print("\nManager Menu")
                 print("1. Manage Reports")
-                print("2. Manage Users")
+                print("2. Manage Operations")
                 choice = input("Choose an option: ")
 
                 if choice == '1':
                     # Implement view reports functionality
-                    print("\nViewing Reports")
+                    # Add sub-menu to choose what type of report
+                    while True:
+                        print("0. Return to Manager Menu")
+                        print("\nViewing Reports")
+                        print("1. Manage Provider Reports")
+                        print("2. Manage Member Reports")
+                        choice = input("Choose an option: ")
+                        
+                        if choice == '0':
+                            # Break out and go back to last menu
+                            break
+                        elif choice == '1':
+                            # do stuff here not ready
+                            print("\nManage Provider Reports")
+                        elif choice == '2':
+                            # do stuff here not ready
+                            print("\nManage Member Reports")
+                        else:
+                            print("\nInvalid option. Please try again.")
                 elif choice == '2':
                     # Implement manage users functionality
-                    print("\nManaging Users")
+                    while True:
+                        print("0. Return to Manager Menu")
+                        print("\nManaging Operations")
+                        print("1. Manage Providers")
+                        print("2. Manage Services")
+                        print("3. Manage Members")
+                        choice = input("Choose an option: ")
+                        
+                        if choice == '0':
+                            # Break out and go back to last menu
+                            break
+                        elif choice == '1':
+
+                            while True:
+                                # Another sub menu for Remove/Add/Modify
+                                print("0. Return to Operations Menu")
+                                print("\nManaging Providers")
+                                print("1. Remove Provider")
+                                print("2. Add Provider")
+                                print("3. Modify Provider")
+                                choice = input("Choose an option: ")
+
+                                if choice == '0':
+                                    # Break out and go back to last menu
+                                    break
+                                elif choice == '1':
+                                    # Remove 
+                                    print("\nRemove Provider")
+                                    id = input("Enter Provider ID: ")
+
+                                    # Check if they even exist to remove                    
+                                    if self.verify_provider_exists(id):
+                                        try_again = ("\nProvider does not exist. Try again? (y/n): ")
+                                        if try_again == 'y':
+                                            continue
+                                        else:
+                                            break
+                
+                                    # then idk here remove it ill do it later
+                                elif choice == '2':
+                                    # Add a provider
+                                    print("\nAdd Provider")
+
+                                    # btw this is rough draft if its bad its ok to scrap
+
+                                    # Collect the info for the Provider here
+
+                                    input("Enter Provider everything: ")
+                                    
+                                elif choice == '3':
+                                    # Modify 
+                                    print("\Modify Provider")
+                                    id = input("Enter Provider ID: ")
+                                    # then update it
+
+                        elif choice == '2':
+                            
+                            while True:
+                                # Another sub menu for Remove/Add/Modify
+                                print("0. Return to Operations Menu")
+                                print("\nManaging Services")
+                                print("1. Remove Service")
+                                print("2. Add Service")
+                                print("3. Modify Service")
+                                choice = input("Choose an option: ")
+
+                                if choice == '0':
+                                    # Break out and go back to last menu
+                                    break
+                                elif choice == '1':
+                                    # Remove 
+                                    print("\nRemove Service")
+                                    id = input("Enter Service ID: ")
+
+                                    # Check if they even exist to remove                    
+                                    if self.verify_service(id):
+                                        try_again = ("\nService does not exist. Try again? (y/n): ")
+                                        if try_again == 'y':
+                                            continue
+                                        else:
+                                            break
+                
+                                    # then idk here remove it ill do it later
+                                elif choice == '2':
+                                    # Add a service
+                                    print("\nAdd Service")
+                                    # Collect the info for the Service here
+                                    
+                                    input("Enter Service everything: ")
+                                    
+                                elif choice == '3':
+                                    # Modify
+                                    print("\Modify Service")
+                                    id = input("Enter Service ID: ")
+                                    # then update it
+
+                        elif choice == '3':
+
+                            while True:
+                                # Another sub menu for Remove/Add/Modify
+                                print("0. Return to Operations Menu")
+                                print("\nManaging Members")
+                                print("1. Remove Member")
+                                print("2. Add Member")
+                                print("3. Modify Member")
+                                choice = input("Choose an option: ")
+
+                                if choice == '0':
+                                    # Break out and go back to last menu
+                                    break
+                                elif choice == '1':
+                                    # Remove 
+                                    print("\nRemove Member")
+                                    id = input("Enter Member ID: ")
+
+                                    # Check if they even exist to remove                    
+                                    if self.verify_member_exists(id):
+                                        try_again = ("\nMember does not exist. Try again? (y/n): ")
+                                        if try_again == 'y':
+                                            continue
+                                        else:
+                                            break
+                
+                                    # then idk here remove it ill do it later
+                                elif choice == '2':
+                                    # Add a member
+                                    print("\nAdd Member")
+
+                                    # btw this is rough draft if its bad its ok to scrap
+
+                                    # Collect the info for the member here
+
+                                    input("Enter Member everything: ")
+                                    
+                                elif choice == '3':
+                                    # Modify 
+                                    print("\Modify Member")
+                                    id = input("Enter Member ID: ")
+                                    # then update it
+
+                        else:
+                            print("\nInvalid option. Please try again.")
+
                 elif choice == '0':
                     break  # Exit loop to return to the main menu
                 else:
