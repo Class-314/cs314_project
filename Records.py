@@ -75,6 +75,16 @@ class ServiceRecord:
     def service_code(self):
         return int(self._service_code)
     
+    @property
+    def fee(self):
+        return int(self._fee)
+    
+    @property
+    def comments(self):
+        return str(self._comments)
+    
+
+    
 
     @service_code.setter
     def service_code(self, new_sc):
