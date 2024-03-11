@@ -1,5 +1,5 @@
 # Imports
-from datetime import datetime
+
 from Records import *
 from DataBaseManager import * 
 
@@ -21,7 +21,7 @@ class ClientInterface:
         menu_function()
     
     def provider_menu(self):
-        # Enter and verify provider ID 
+        # Enter and verify provider ID
         if not self.verify_provider_input():
             print("Exiting to main menu.")
             return
@@ -30,28 +30,28 @@ class ClientInterface:
         if not self.verify_member_input():
             print("Exising to main menu.")
             return
+        
+        # print current provider
+        if self.current_provider is not None:
+            print(f"\nCurrent Provider: \n{self.current_provider}\n")
+        else:
+            print("\nCurrent Provider: Not available")
+
+        # print current member
+        if self.current_member is not None:
+            print(f"\nCurrent Member: \n{self.current_member}\n")
+        else:
+            print("\nCurrent Member: Not available")
 
         # If provider and member ID are provided, show menu. 
         while True:
             # print menu
-            print("\nProvider Menu")
-            
-            # print current provider
-            if self.current_provider is not None:
-                print(f"\nCurrent Provider: {self.current_provider}")
-            else:
-                print("\nCurrent Provider: Not available")
-
-            # print current member
-            if self.current_member is not None:
-                print(f"\nCurrent Member: {self.current_member}")
-            else:
-                print("\nCurrent Member: Not available")
+            print("\nProvider Menu\n")
 
             # print provider menu
             print("0. Return to Main Menu")
-            print("1. Display Provider Information")
-            print("2. Display Member Information")
+            print("1. Display Current Provider Information")
+            print("2. Display Current Member Information")
             print("3. Display Service Record Directory")
             print("4. Enter Service Record")
             print("5. Change Current Member ID")
@@ -59,16 +59,16 @@ class ClientInterface:
             choice = input("\nChoose an option: ")
             # choice 1
             if choice == '1':
-                print("\nDisplay Provider Information")
+                print("\nDisplaying Provider Information")
                 if self.current_provider is not None:
-                    print(f"\nCurrent Provider: {self.current_provider}")
+                    print(f"\nCurrent Provider: \n{self.current_provider}\n")
                 else:
                     print("\nCurrent Provider: Not available")
             # choice 2
             elif choice == '2':
-                print("\nDisplay Member Information")
+                print("\nDisplaying Member Information")
                 if self.current_member is not None:
-                    print(f"\nCurrent Member: {self.current_member}")
+                    print(f"\nCurrent Member: \n{self.current_member}\n")
                 else:
                     print("\nCurrent Member: Not available")
             # choice 3
@@ -78,7 +78,7 @@ class ClientInterface:
             # choice 4
             elif choice == '4':
                 print("\nEnter Service Record")
-                # self.write_service()
+                self.write_service()
             #choice 5
             elif choice == '5':
                 print("\nChange Current Member ID")
@@ -133,8 +133,18 @@ class ClientInterface:
             return False
     
     # Fetch the provider record
-    def get_provider(self, provider_id):   
-        return self.DB_mgr.get_provider_record(provider_id)
+    def get_provider(self, provider_id):
+        # Use placeholder values that pass the Address validation
+        minimal_address = Address("NA", "NA", "NA", "97205")
+        
+        # Attempt to create a ProviderRecord with placeholder values
+        # Important: Adjust this based on what ProviderRecord and Address validations allow
+        temp_provider = ProviderRecord("NA", provider_id, minimal_address)
+        
+        # Fetch the provider record
+        provider_record = self.DB_mgr.get_provider_record(temp_provider)
+        
+        return provider_record
     
     # Validate user input, verify the provider ID exists, fetch provider record
     def verify_provider_input(self):
@@ -162,7 +172,7 @@ class ClientInterface:
     # Update current provider
     def update_current_provider(self, temp_provider):   
         self.current_provider = None
-        self.current_provider = ProviderRecord.copy_constructor(temp_provider)
+        self.current_provider = ProviderRecord(temp_provider)
 
     # Check if the member ID exists 
     def verify_member_exists(self, member_id):
@@ -171,9 +181,19 @@ class ClientInterface:
         else:
             return False
     
-    # Fetch the member record 
+    # Fetch the provider record
     def get_member(self, member_id):
-        return self.DB_mgr.get_member_record(member_id)
+        # Use placeholder values that pass the Address validation
+        minimal_address = Address("NA", "NA", "NA", "97205")
+        
+        # Attempt to create a ProviderRecord with placeholder values
+        # Important: Adjust this based on what ProviderRecord and Address validations allow
+        temp_member = MemberRecord("NA", member_id, minimal_address)
+        
+        # Fetch the provider record
+        member_record = self.DB_mgr.get_member_record(temp_member)
+        
+        return member_record
     
     # Validate user input, verify the member ID exists, fetch member record
     def verify_member_input(self):
@@ -199,7 +219,7 @@ class ClientInterface:
     # update current member 
     def update_current_member(self, temp_member):
         self.current_member = temp_member
-        self.current_member = MemberRecord.copy_constructor(temp_member)
+        self.current_member = MemberRecord(temp_member)
 
     # Retrieve the current provider's record
     def get_current_provider(self):
@@ -227,8 +247,8 @@ class ClientInterface:
 
             while True:
                 service_name = input("\nEnter the Service Name: ")
-                if len(service_name) != 23:
-                    print("Error: The service name must be exactly 23 characters.")
+                if len(service_name) > 23:
+                    print("Error: The service name must be less than 23 characters.")
                 else:
                     break  # Exit loop if service name meets the criteria
 
@@ -250,67 +270,92 @@ class ClientInterface:
 
             # Check with the database manager if the service code already exists
             if not self.DB_mgr.is_service(service_name, service_code):
-                # Service code does not already exist, it's valid for new entry
-                break  # Break out of the loop, ready for new entry
+                print("Error: The service code does not exist in the database. Please enter a new service name and service code.")
+                
             else:
-                # Service code already exists in the database, ask for a new one
-                print("Error: The service code already exists in the database. Please enter a new service name and service code.")
-
-        while True:
-            try:
-                service_fee_input = input("\nEnter the Service Fee: ")
-                service_fee = float(service_fee_input)
-                if service_fee < 0 or service_fee >= 1000000:
-                    raise ValueError("Service fee must be between $0.00 and $999,999.99.")
-                break
-            except ValueError as e:
-                print(f"Invalid input for service fee: {e}. Please try again.")
+                # Service code already exists in the database, move on to create Service Record object
+                break  
 
         # Assuming current_member and current_provider are already set
         service_member = self.current_member
         service_provider = self.current_provider
 
-        # Get user input for service comment and make sure it's under 100 characters
-        while True:
-            service_comment = input("\nEnter the Service Comment: ")
-            if len(service_comment) <= 100:
-                break
-            else:
-                print("Error: The service comment must be 100 characters or less.")
+        # Initialize service_comment as None or an empty string if no comment is provided
+        service_comment = None
+
+        # Ask the user if they want to add a comment
+        add_comment = input("Would you like to add a comment to the service record? (yes/no): ").strip().lower()
+
+        if add_comment == "yes":
+            while True:
+                service_comment = input("\nEnter the Service Comment (100 characters max): ")
+                
+                # Validate the length of the comment
+                if len(service_comment) <= 100:
+                    break  # Exit the loop if the comment is valid
+                else:
+                    print("Error: The service comment must be 100 characters or less.")
+        elif add_comment == "no":
+            # If the user chooses not to add a comment, you can leave service_comment as None or ""
+            print("Proceeding without adding a comment.")
+        else:
+            print("Invalid response. Proceeding without adding a comment.")
+
 
         # Get user input for service date in format (MM-DD-YYYY)
         while True:
+            from datetime import datetime
             service_date_str = input("\nEnter the Service Date (MM-DD-YYYY): ")
             try:
-                # Attempt to convert the input string to a datetime object
+                # Now this will work as expected
                 datetime.strptime(service_date_str, "%m-%d-%Y")
-                break  # Break the loop if conversion succeeds
+                break  # If conversion succeeds, exit the loop
             except ValueError:
                 print("The date entered is invalid or does not match the format MM-DD-YYYY. Please try again.")
+        
+        update_success = False  # Initialize update_success to False
         try:
-                # Create ServiceRecord object. 
-                temp_service = ServiceRecord(
-                    service_code,
-                    service_provider, 
-                    service_member, 
-                    service_date_str,
-                    service_comment,
-                    service_name,
-                    service_fee,                   
-                )
-
-                # Attempt to add the service record via the Database Manager
-                update_success = self.DB_mgr.add_service_record(temp_service)
+            # Fetch service details using the service_code
+            service_details = self.DB_mgr.get_directory_service(service_code)
+            
+            if service_details:
+                # Unpack the fetched details
+                fetched_name, fetched_sid, fetched_fee = service_details 
                 
-                if update_success:
-                    print("Service successfully updated in the directory.")
-                    return True
+                # Assuming placeholders for missing data
+                #service_code =  int(fetched_sid)
+                #service_name = fetched_name
+                #service_fee = float(fetched_fee)
+                service_code =  fetched_sid
+                service_name = fetched_name
+                service_fee = fetched_fee
+                
+                # Check if a comment was provided by the user
+                if service_comment:  
+                    # Create the ServiceRecord object with the comment
+                    service_record = ServiceRecord(service_code, service_provider, service_member, service_date_str, service_name, service_fee, service_comment)
                 else:
-                    print("Failed to update service in the directory.")
-                    return False
-        except Exception as e:
-                print(f"An error occurred while writing service: {e}")
+                    # Create the ServiceRecord object without the comment
+                    service_record = ServiceRecord(service_code, service_provider.ID, service_member.ID, service_date_str, service_name, service_fee)
+                
+                # Attempt to add the service record via the Database Manager
+                update_success = self.DB_mgr.add_service_record(service_record)
+            
+            # Initialize update_success to False at the beginning of the try block to ensure it's defined
+            else:
+                update_success = False
+                print("Failed to fetch service details.")
+            
+            if update_success:
+                print("Service successfully updated in the directory.")
+                return True
+            else:
+                print("Failed to update service in the directory.")
                 return False
+        except Exception as e:
+            print(f"An error occurred while writing service: {e}")
+            return False
+
     '''
     # Refresh the member directory
     def update_member_directory(self):
@@ -328,3 +373,14 @@ class ClientInterface:
         pass
 
     '''
+    '''     
+        while True:
+            try:
+                service_fee_input = input("\nEnter the Service Fee: ")
+                service_fee = float(service_fee_input)
+                if service_fee < 0 or service_fee >= 1000000:
+                    raise ValueError("Service fee must be between $0.00 and $999,999.99.")
+                break
+            except ValueError as e:
+                print(f"Invalid input for service fee: {e}. Please try again.")
+        '''  
