@@ -351,7 +351,7 @@ class DatabaseManager:
                         Provrecord = ProviderRecord(name,ID,an_address) 
                         #Provrecord.num_consultations = consultations
                         #Provrecord.total_payment= t_payment
-                        print("IN")
+                        # print("IN")
                         return Provrecord
                         
 
@@ -671,9 +671,11 @@ class DatabaseManager:
 
 
     def is_service(self,name,sid):
+        sid_int = int(sid)
         # Assuming self.directory is the list of sublists you're traversing
         for service in self.directory:
-            if service[1] == sid and service[0]==name:
+            service_int = int(service[1])
+            if service_int == sid_int and service[0]==name:
                 return True 
         return False # Return None if no matching service is found
 
@@ -693,14 +695,16 @@ class DatabaseManager:
 
     
      
-    def get_directory_service(self,sid):
-        # Assuming self.directory is the list of sublists you're traversing
+    def get_directory_service(self, sid):
+        sid_int = int(sid)
         for service in self.directory:
-            if service[1] == sid:
-                return service
-        return None # Return None if no matching service is found
-    
+            service_id_int = int(service[1])
 
+            if service_id_int == sid_int:
+                return service
+
+        # Return None if no matching service is found
+        return None
 
     def update_directory_service(self,name,sid,fee):
 

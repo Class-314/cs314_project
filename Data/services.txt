@@ -6,4 +6,3 @@ jazzercise:748321:100.00
 dentist:808707:54.89
 hygienist:909656:49.99
 acupuncture:171717:198.87
-
