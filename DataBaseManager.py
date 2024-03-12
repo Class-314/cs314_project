@@ -100,7 +100,7 @@ class DatabaseManager:
             }
             return data_dict
         elif isinstance(to_add_record, ProviderRecord):
-            self.data_dict = {
+            data_dict = {
                 "Street": to_add_record.street,
                 "City": to_add_record.city,
                 "State": to_add_record.state,
