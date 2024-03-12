@@ -24,7 +24,6 @@ class DatabaseManager:
         # Data Members #
         self.directory= [] # list where each element holds { Name: [ ID, FEE] } a service- comprised it is the service directory
         self.IDs = {} #Dictionary of all ID's ever generated
-        self.data_dict = {}
 
 
         #Essential Methods for program start #
@@ -89,7 +88,7 @@ class DatabaseManager:
     def package_into_dict(self, to_add_record):
 
         if isinstance(to_add_record, MemberRecord):
-            self.data_dict = {
+            data_dict = {
                 "Street": to_add_record.street,
                 "City": to_add_record.city,
                 "State": to_add_record.state,
@@ -99,7 +98,7 @@ class DatabaseManager:
                 "Is Suspended": to_add_record.is_suspended
 
             }
-            return self.data_dict
+            return data_dict
         elif isinstance(to_add_record, ProviderRecord):
             self.data_dict = {
                 "Street": to_add_record.street,
@@ -111,7 +110,7 @@ class DatabaseManager:
                 "Number Consultations": to_add_record.num_consultations,
                 "Total Payment": to_add_record.total_payment
             }
-            return self.data_dict
+            return data_dict
         return None
 
 
