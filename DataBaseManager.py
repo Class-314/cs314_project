@@ -24,6 +24,7 @@ class DatabaseManager:
         # Data Members #
         self.directory= [] # list where each element holds { Name: [ ID, FEE] } a service- comprised it is the service directory
         self.IDs = {} #Dictionary of all ID's ever generated
+        self.data_dict = {}
 
 
         #Essential Methods for program start #
@@ -33,7 +34,7 @@ class DatabaseManager:
 
 
 ##################################################################################################
-#################################### Utility Methods ##########h##################################
+#################################### Utility Methods #############################################
 ##################################################################################################
 
     #-------------Backend Work---------------#
@@ -51,6 +52,8 @@ class DatabaseManager:
                 # Add the key-value pair to the dictionary
 
                 self.IDs[key] = ""
+
+            print("IDs loaded!")
 
             
             return True
@@ -76,7 +79,7 @@ class DatabaseManager:
         return members_dict
 
     def print_members(self,instance):
-        members_dict = get_members_dict(instance)
+        members_dict = self.get_members_dict(instance)
         for name, value in members_dict.items():
             print(f"{name}: {value}")
 
@@ -86,7 +89,7 @@ class DatabaseManager:
     def package_into_dict(self, to_add_record):
 
         if isinstance(to_add_record, MemberRecord):
-            data_dict = {
+            self.data_dict = {
                 "Street": to_add_record.street,
                 "City": to_add_record.city,
                 "State": to_add_record.state,
@@ -96,9 +99,9 @@ class DatabaseManager:
                 "Is Suspended": to_add_record.is_suspended
 
             }
-            return data_dict
+            return self.data_dict
         elif isinstance(to_add_record, ProviderRecord):
-            data_dict = {
+            self.data_dict = {
                 "Street": to_add_record.street,
                 "City": to_add_record.city,
                 "State": to_add_record.state,
@@ -108,7 +111,7 @@ class DatabaseManager:
                 "Number Consultations": to_add_record.num_consultations,
                 "Total Payment": to_add_record.total_payment
             }
-            return data_dict
+            return self.data_dict
         return None
 
 
@@ -530,7 +533,7 @@ class DatabaseManager:
     def get_directory_service(self,sid):
         
         pass
-        return service_dir_obj
+        #return service_dir_obj
 
 
     def Update_directory_service(self,sid):
@@ -540,8 +543,100 @@ class DatabaseManager:
 
 
 
+##################################################################################################
+###################################### Reporter Methods ##########################################
+##################################################################################################
+    
+
+
+
+    def write_member_report(self):
+        #get member info from member record
+        with open('Reports/member_report.txt', 'w') as file:
+            # Write to the file
+            file.write("MEMBER REPORT:\n\n")
+            #for id in self.IDs:
+            #with open(self.MemberRecords_relative_path + 'U' + id, 'r') as mem_file:
+            with open('Data/UserRecords/MemberRecords/U123456789.txt', 'r') as mem_file:
+                lines = []
+
+                # Read lines from the source file
+                for line in mem_file:
+                    # Check if the line contains the '=' symbol
+                    if '=' in line:
+                        break  # Stop reading lines when '=' is encountered
+                    lines.append(line)  # Append the line to the list
+                file.writelines(lines)
+                    
+            
+            
+            ''' 
+            for serv in self.directory:
+                file.write("Service: ")
+                file.write(str(serv[0]))
+                file.write("\n")
+                file.write("ID: ")
+                file.write(str(serv[1]))
+                file.write("\n")
+                file.write("Fee: ")
+                file.write(str(serv[2]))
+                file.write("\n\n")
+            '''
+
+
+
+
+        #get provider and services provided to member
+
+        #write in order of date of service provided
+
+        return
+
+
+    def write_provider_report(self):
+        #get provider infor from provider record
+        with open('Reports/provider_report.txt', 'w') as file:
+            # Write to the file
+            file.write("Provider Report:")
+
+        #get service info with member name and number
+
+        #get total number of consultations with members
+
+        #get total fee for the week 
+        return
+
+
+    def write_summary_report(self):
+        #get every provider that provided service for the week
+            #get number of consultations each provider had
+            #get total fee for the week per provider
+        with open('Reports/summary_report.txt', 'w') as file:
+            # Write to the file
+            file.write("Summary Report:")
+        
+        #get total number of providers who provided services
+        #get total number of consultations, and the overall fee total are printed.
+
+        return
+    
+    def write_eft_data(self):
+        with open('Reports/eft_data.txt', 'w') as file:
+            # Write to the file
+            file.write("EFT Data Report:")
+        pass
+
+
         
 Data= DatabaseManager()
+Data.load_IDs()
+Data.load_directory()
+Data.write_member_report()
+#Data.write_provider_report()
+#Data.write_summary_report()
+#Data.write_eft_data()
+#member = MemberRecord()
+#Data.write_member_report()
 
 
 #Service Directory Tests
