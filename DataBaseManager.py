@@ -8,7 +8,6 @@ import random
 import string
 import datetime
 import re
-import time
 
 #test
 #holds directory of serivices name/id/fee
@@ -68,6 +67,7 @@ class DatabaseManager:
             print("The Member already exists on File. No new record will be created.")
             return False # Return False or an appropriate value to indicate the file already exists
         else:
+            self.IDs[str(ID)] =""
             with open(self.Registerd_IDs_relative_path, 'a') as file:
                 file.write(f"{ID}\n")
             
@@ -117,11 +117,12 @@ class DatabaseManager:
             return data_dict
         elif isinstance(to_add_record, ServiceRecord):
             data_dict = {
-                #"Fee": to_add_record._fee,
+                "Name": to_add_record.name,
+                "Fee": to_add_record.fee,
                 "Service Code": to_add_record.service_code,
                 "Provider ID": to_add_record.pID,
                 "Member ID": to_add_record.mID,
-                #"Comments": to_add_record.comments,
+                "Comments": to_add_record.comments,
                 "Date Provided": to_add_record.date_provided,
                 "Current DateTime": to_add_record.current_datetime
             }
@@ -131,44 +132,19 @@ class DatabaseManager:
 
 
     def generate_random_ID(self):
-        timestamp = int(time.time())
-        timestamp = self.shuffle_digits(timestamp)
-        rand_num = random.randint(1,999999)
-        timestamp = str(timestamp)
-        uid = timestamp[:6] + str(rand_num)[:2]
-        rand_fill = str(random.randint(1, 9))
-        uid = uid[:9].ljust(9, rand_fill)
+        # Define the character set including digits and asterisks
+        char_set = string.digits 
 
-        while uid in self.IDs:
-            timestamp = int(time.time())
-            timestamp = self.shuffle_digits(timestamp)
-            rand_num = random.randint(1,999999)
-            timestamp = str(timestamp)
-            uid = timestamp[:6] + str(rand_num)[:2]
-            rand_fill = str(random.randint(1, 9))
-            uid = uid[:9].ljust(9, rand_fill)
-        
+        # Generate a random ID of length 9
+        new_ID = ''.join(random.choice(char_set) for _ in range(9))
 
-        return int(uid)
-        # # Define the character set including digits and asterisks
-        # char_set = string.digits 
+        # Check if the ID already exists
+        while new_ID in self.IDs:
+            new_ID = ''.join(random.choice(char_set) for _ in range(9))
 
-        # # Generate a random ID of length 9
-        # new_ID = ''.join(random.choice(char_set) for _ in range(9))
+        return new_ID
 
-        # # Check if the ID already exists
-        # while new_ID in self.IDs:
-        #     new_ID = ''.join(random.choice(char_set) for _ in range(9))
-
-        # return new_ID
-
-
-    def shuffle_digits(self, num):
-        digits = [int(digit) for digit in str(num)]
-        random.shuffle(digits)
-        shuffled_num = int(''.join(map(str, digits)))
-        return shuffled_num
-
+    
 
     # Check if the ID exists in the dictionary
     def ID_exists(self,ID):
@@ -184,9 +160,7 @@ class DatabaseManager:
 
         data_dict = self.package_into_dict(to_add_record)
 #       file_name = data_dict["ID"]
-        to_add_record.ID = self.generate_random_ID()
-        data_dict["ID"] = to_add_record.ID
-        file_name = to_add_record.ID
+        file_name = self.generate_random_ID()
         
         
         file_name_with_prefix = "M" + str(file_name) + ".txt"
@@ -216,10 +190,7 @@ class DatabaseManager:
 
         data_dict = self.package_into_dict(to_add_record)
         #file_name = data_dict["ID"]
-        to_add_record.ID = self.generate_random_ID()
-        data_dict["ID"] = to_add_record.ID
-        file_name = to_add_record.ID
-
+        file_name = self.generate_random_ID()
         file_name_with_prefix = "P" + str(file_name) + ".txt"
         relative_file_path = self.ProviderRecords_relative_path + file_name_with_prefix
 
@@ -351,7 +322,7 @@ class DatabaseManager:
                         Provrecord = ProviderRecord(name,ID,an_address) 
                         #Provrecord.num_consultations = consultations
                         #Provrecord.total_payment= t_payment
-                        # print("IN")
+                        print("IN")
                         return Provrecord
                         
 
@@ -548,12 +519,9 @@ class DatabaseManager:
         # Find the maximum number if any files exist, or start with 0 if the directory is empty
         next_number = max(existing_numbers, default=0) + 1 if existing_numbers else 0
 
-
-        #Get the current date
-        now = datetime.datetime.now()
-
-        # Format the date as MM-DD-YYYY without dashes
-        formatted_date = now.strftime("%m%d%Y")
+        
+        date=data_dict["Date Provided"]
+        formatted_date=date.replace("-","")
 
         # Construct the new filename with the incremented number
         new_filename_with_prefix = f"SR{next_number}_{formatted_date}.txt"
@@ -671,11 +639,9 @@ class DatabaseManager:
 
 
     def is_service(self,name,sid):
-        sid_int = int(sid)
         # Assuming self.directory is the list of sublists you're traversing
         for service in self.directory:
-            service_int = int(service[1])
-            if service_int == sid_int and service[0]==name:
+            if service[1] == sid and service[0]==name:
                 return True 
         return False # Return None if no matching service is found
 
@@ -695,16 +661,14 @@ class DatabaseManager:
 
     
      
-    def get_directory_service(self, sid):
-        sid_int = int(sid)
+    def get_directory_service(self,sid):
+        # Assuming self.directory is the list of sublists you're traversing
         for service in self.directory:
-            service_id_int = int(service[1])
-
-            if service_id_int == sid_int:
+            if service[1] == sid:
                 return service
+        return None # Return None if no matching service is found
+    
 
-        # Return None if no matching service is found
-        return None
 
     def update_directory_service(self,name,sid,fee):
 
@@ -731,7 +695,6 @@ class DatabaseManager:
         
 
 #tests
-#data = DatabaseManager()
 """"
 #test
         
@@ -739,7 +702,6 @@ class DatabaseManager:
 ad = Address("Sw carrot RD", "Clackamas","OR","97015")
 m = MemberRecord("Jeb Bush", 100000000 ,ad)
 p = ProviderRecord("George Bush", 200000000, ad)
-serve= ServiceRecord("123456",200000000,100000000,"01-23-2024","destroyer of worlds", 123)
 
 
 #add
@@ -748,6 +710,8 @@ data.add_user_record(p)
 
 #new update
 
+data = DatabaseManager()
+serve= ServiceRecord("123456",101011253,100111565,"01-23-2024","destroyer of worlds", 123)
 data.add_service_record(serve)
 
 """
