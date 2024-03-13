@@ -68,6 +68,7 @@ class DatabaseManager:
             print("The Member already exists on File. No new record will be created.")
             return False # Return False or an appropriate value to indicate the file already exists
         else:
+            self.IDs[str(ID)] = ""
             with open(self.Registerd_IDs_relative_path, 'a') as file:
                 file.write(f"{ID}\n")
             
