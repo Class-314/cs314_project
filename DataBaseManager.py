@@ -20,6 +20,10 @@ class DatabaseManager:
         self.ServiceRecords_relative_path = "Data/ServiceRecords/"
         self.ServiceDirectory_relative_path = "Data/services.txt"
         self.Registerd_IDs_relative_path = "Data/Registerd_IDs.txt"
+        self.Member_reports_relative_path = "Data/Reports/MemberReports/"
+        self.Provider_reports_relative_path = "Data/Reports/ProviderReports/"
+        self.EFTData_reports_relative_path = "Data/Reports/EFTDataReports/"
+        self.Summary_reports_relative_path = "Data/Reports/SummaryReports/"
 
         # Data Members #
         self.directory= [] # list where each element holds { Name: [ ID, FEE] } a service- comprised it is the service directory
@@ -51,9 +55,6 @@ class DatabaseManager:
                 # Add the key-value pair to the dictionary
 
                 self.IDs[key] = ""
-
-            print("IDs loaded!")
-
             
             return True
 
@@ -552,9 +553,8 @@ class DatabaseManager:
     def write_member_report(self):
 
         for id in self.IDs: #loop through member ids
-
-            member_report_path = self.MemberRecords_relative_path + 'MR' + id + '.txt' # create path for each member report file
-            member_record_path = self.MemberRecords_relative_path + 'M' + id + '.txt' # create path for each member report file
+            member_report_path = str(self.Member_reports_relative_path + 'MR' + id + '.txt') # create path for each member report file
+            member_record_path = str(self.MemberRecords_relative_path + 'M' + id + '.txt') # create path for each member report file
 
             with open(member_report_path, 'w') as rep_file: # create and open member's report file
 
@@ -568,27 +568,31 @@ class DatabaseManager:
                         if '=' in line:
                             read_services = True
                         if(read_services):
-                            services.append(line) # Append service file name to services list
+                            services.append(line.strip()) # Append service file name to services list
                         else:
                             lines.append(line)  # Append the line to the list
                     rep_file.writelines(lines)
 
                     for service in services:
                         lines = []
-                        with open(str(service), 'r') as s_file:
+
+                        if service == '=': # check for EOF
+                            print("No services associated with member")
+                            break 
+
+                        with open(service, 'r') as s_file:
                             for line in s_file:
                                 lines.append(line) # write service line to current member's report file
                         rep_file.write("Date of Service: ", line[0], '\n')
                         rep_file.write("Provider Name: ", line[1], '\n')
                         rep_file.write("Service Name: ", line[2], '\n')
 
-                                 
         return
 
 
     def write_provider_report(self):
 
-        provider_report_path = self.MemberRecords_relative_path + 'PR' + id + '.txt' # create path for each provider report file
+        provider_report_path = self.Provider_reports_relative_path + 'PR' + id + '.txt' # create path for each provider report file
         provider_record_path = self.MemberRecords_relative_path + 'P' + id + '.txt' # create path for each provider report file
 
         for id in self.IDs:
@@ -622,7 +626,7 @@ class DatabaseManager:
     def write_eft_data(self):
         with open('Reports/eft_data.txt', 'w') as file:
             # Write to the file
-            file.write("EFT DATAT REPORT:")
+            file.write("EFT DATA REPORT:")
         pass
 
 
