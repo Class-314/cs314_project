@@ -561,7 +561,6 @@ class DatabaseManager:
             #with open(self.MemberRecords_relative_path + 'U123456789.txt', 'r') as mem_file:
                     lines = []
 
-                    # Read lines from the source file
                     for line in mem_file:
                         # Check if the line contains the '=' symbol
                         if '=' in line:
