@@ -550,54 +550,53 @@ class DatabaseManager:
 
 
     def write_member_report(self):
-        member_path = self.MemberRecords_relative_path + 'U'
-        #get member info from member record
-        with open('Reports/member_report.txt', 'w') as file:
-            # Write to the file
-            file.write("MEMBER REPORT:\n\n")
-            for id in self.IDs:
-                member_path = self.MemberRecords_relative_path + 'U' + str(id) + '.txt'
-                with open(member_path, 'r') as mem_file:
-            #with open(self.MemberRecords_relative_path + 'U123456789.txt', 'r') as mem_file:
-                    lines = []
+
+        for id in self.IDs: #loop through member ids
+
+            member_report_path = self.MemberRecords_relative_path + 'MR' + id + '.txt' # create path for each member report file
+            member_record_path = self.MemberRecords_relative_path + 'M' + id + '.txt' # create path for each member report file
+
+            with open(member_report_path, 'w') as rep_file: # create and open member's report file
+
+                with open(member_record_path, 'r') as mem_file: # open member record file
+                    lines = [] # member record info 
+                    services = [] # service files for members service info
+                    read_services = False
 
                     for line in mem_file:
                         # Check if the line contains the '=' symbol
                         if '=' in line:
-                            break  # Stop reading lines when '=' is encountered
-                        lines.append(line)  # Append the line to the list
-                    file.writelines(lines)
-                    
-            
-            
-            ''' 
-            for serv in self.directory:
-                file.write("Service: ")
-                file.write(str(serv[0]))
-                file.write("\n")
-                file.write("ID: ")
-                file.write(str(serv[1]))
-                file.write("\n")
-                file.write("Fee: ")
-                file.write(str(serv[2]))
-                file.write("\n\n")
-            '''
+                            read_services = True
+                        if(read_services):
+                            services.append(line) # Append service file name to services list
+                        else:
+                            lines.append(line)  # Append the line to the list
+                    rep_file.writelines(lines)
 
+                    for service in services:
+                        lines = []
+                        with open(str(service), 'r') as s_file:
+                            for line in s_file:
+                                lines.append(line) # write service line to current member's report file
+                        rep_file.write("Date of Service: ", line[0], '\n')
+                        rep_file.write("Provider Name: ", line[1], '\n')
+                        rep_file.write("Service Name: ", line[2], '\n')
 
-
-
-        #get provider and services provided to member
-
-        #write in order of date of service provided
-
+                                 
         return
 
 
     def write_provider_report(self):
-        #get provider infor from provider record
-        with open('Reports/provider_report.txt', 'w') as file:
-            # Write to the file
-            file.write("PROVIDER REPORT:")
+
+        provider_report_path = self.MemberRecords_relative_path + 'PR' + id + '.txt' # create path for each provider report file
+        provider_record_path = self.MemberRecords_relative_path + 'P' + id + '.txt' # create path for each provider report file
+
+        for id in self.IDs:
+            with open(provider_report_path, 'w') as rep_file:
+
+                with open(provider_record_path, 'r') as p_file:
+                    lines = []
+
 
         #get service info with member name and number
 
