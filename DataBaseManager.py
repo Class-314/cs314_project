@@ -240,6 +240,7 @@ class DatabaseManager:
             self.register_ID(file_name)
         
             print(f"Provider Record successfully uploaded to the database")
+            print(to_add_record)
 
         return True
 
@@ -729,6 +730,92 @@ class DatabaseManager:
             print(f"Service ID '{sid}' is not associated with a Serivce in the Service Directory")
             return False 
         
+
+
+
+##################################################################################################
+###################################### Reporter Methods ##########################################
+##################################################################################################
+    
+
+
+
+    def write_member_report(self):
+        #get member info from member record
+        with open('Reports/member_report.txt', 'w') as file:
+            # Write to the file
+            file.write("MEMBER REPORT:\n\n")
+            #for id in self.IDs:
+            #with open(self.MemberRecords_relative_path + 'U' + id, 'r') as mem_file:
+            with open('Data/UserRecords/MemberRecords/U123456789.txt', 'r') as mem_file:
+                lines = []
+
+                # Read lines from the source file
+                for line in mem_file:
+                    # Check if the line contains the '=' symbol
+                    if '=' in line:
+                        break  # Stop reading lines when '=' is encountered
+                    lines.append(line)  # Append the line to the list
+                file.writelines(lines)
+                    
+            
+            
+            ''' 
+            for serv in self.directory:
+                file.write("Service: ")
+                file.write(str(serv[0]))
+                file.write("\n")
+                file.write("ID: ")
+                file.write(str(serv[1]))
+                file.write("\n")
+                file.write("Fee: ")
+                file.write(str(serv[2]))
+                file.write("\n\n")
+            '''
+
+
+
+
+        #get provider and services provided to member
+
+        #write in order of date of service provided
+
+        return
+
+
+    def write_provider_report(self):
+        #get provider infor from provider record
+        with open('Reports/provider_report.txt', 'w') as file:
+            # Write to the file
+            file.write("Provider Report:")
+
+        #get service info with member name and number
+
+        #get total number of consultations with members
+
+        #get total fee for the week 
+        return
+
+
+    def write_summary_report(self):
+        #get every provider that provided service for the week
+            #get number of consultations each provider had
+            #get total fee for the week per provider
+        with open('Reports/summary_report.txt', 'w') as file:
+            # Write to the file
+            file.write("Summary Report:")
+        
+        #get total number of providers who provided services
+        #get total number of consultations, and the overall fee total are printed.
+
+        return
+    
+    def write_eft_data(self):
+        with open('Reports/eft_data.txt', 'w') as file:
+            # Write to the file
+            file.write("EFT Data Report:")
+        pass
+
 
 #tests
 #data = DatabaseManager()
