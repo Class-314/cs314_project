@@ -185,6 +185,7 @@ class ClientInterface:
                     user_input = input("Is this the Provider you wish to edit? (y/n): ")
                     user_input = user_input.lower()
             else:
+                to_edit = None
                 user_input = 'y'
         
         if not (to_edit is None):
@@ -197,13 +198,19 @@ class ClientInterface:
         user_input = 'n'
         to_remove = None
         while user_input != 'y':
-            self.verify_provider_input()
-            to_remove = self.current_provider
-            self.current_provider = None
-            print(to_remove)
-            user_input = input("Is this the Provider you wish to remove? (y/n): ")
-            user_input = user_input.lower()
-        self.DB_mgr.remove_provider_record(to_remove)
+            if (self.verify_provider_input()):
+                to_remove = self.current_provider
+                self.current_provider = None
+                if not (to_remove is None):
+                    print(to_remove)
+                    user_input = input("Is this the Provider you wish to remove? (y/n): ")
+                    user_input = user_input.lower()
+            else:
+                to_remove = None
+                user_input = 'y'
+
+        if not (to_remove is None):
+            self.DB_mgr.remove_provider_record(to_remove)
 
     def add_member(self):
         to_add = MemberRecord()
@@ -222,35 +229,48 @@ class ClientInterface:
         user_input = 'n'
         to_edit = None
         while user_input != 'y':
-            self.verify_member_input()
-            to_edit = self.current_member
-            self.current_member = None
-            print(to_edit)
-            user_input = input("Is this the Member you wish to edit? (y/n): ")
-            user_input = user_input.lower()
-        self.input_user(to_edit)
-        user_input = ''
-        user_input = input("Update membership suspension status? (y/n): ")
-        while (user_input != 'y' and user_input != 'n'):
-            print("Invalid entry, please enter y or n")
-            user_input = input("Change membership suspension status?")
-        if (user_input == 'y'):
-            to_edit.is_suspended = not to_edit.is_suspended
-            status = to_edit.convert_status()
-            print("Membership status has been updated to " + str(status))
-        self.DB_mgr.edit_member_record(to_edit)
+            if (self.verify_member_input()):
+                to_edit = self.current_member
+                self.current_member = None
+                if not (to_edit is None):
+                    print(to_edit)
+                    user_input = input("Is this the Member you wish to edit? (y/n): ")
+                    user_input = user_input.lower()
+            else:
+                to_edit = None
+                break
+        
+        if not (to_edit is None):
+            self.input_user(to_edit)
+            user_input = ''
+            user_input = input("Update membership suspension status? (y/n): ")
+            while (user_input != 'y' and user_input != 'n'):
+                print("Invalid entry, please enter y or n")
+                user_input = input("Change membership suspension status?")
+            if (user_input == 'y'):
+                print(to_edit.convert_status())
+                to_edit.is_suspended = not to_edit.is_suspended
+                status = to_edit.convert_status()
+                print(status)
+                print("Membership status has been updated to " + str(status))
+            self.DB_mgr.edit_member_record(to_edit)
 
     def remove_member(self):
         user_input = 'n'
         to_remove = None
         while user_input != 'y':
-            self.verify_member_input()
-            to_remove = self.current_member
-            self.current_member = None
-            print(to_remove)
-            user_input = input("Is this the Member you wish to remove? (y/n): ")
-            user_input = user_input.lower()
-        self.DB_mgr.remove_member_record(to_remove)  
+            if (self.verify_member_input()):
+                to_remove = self.current_member
+                self.current_member = None
+                if not (to_remove is None):
+                    print(to_remove)
+                    user_input = input("Is this the Member you wish to remove? (y/n): ")
+                    user_input = user_input.lower()
+            else:
+                user_input = 'y'
+                to_remove = None
+        if not (to_remove is None):
+            self.DB_mgr.remove_member_record(to_remove)  
 
 
     def input_user(self, to_add):
