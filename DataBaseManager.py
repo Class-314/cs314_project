@@ -557,6 +557,7 @@ class DatabaseManager:
             member_record_path = str(self.MemberRecords_relative_path + 'M' + id + '.txt') # create path for each member report file
 
             with open(member_report_path, 'w') as rep_file: # create and open member's report file
+                rep_file.write("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~MEMBER REPORT~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 
                 with open(member_record_path, 'r') as mem_file: # open member record file
                     lines = [] # member record info 
@@ -571,18 +572,27 @@ class DatabaseManager:
                             services.append(line.strip()) # Append service file name to services list
                         else:
                             lines.append(line)  # Append the line to the list
+                    lines[0] = "Street: " + lines[0] + '\n'
+                    lines[1] = "City: " + lines[1] + '\n'
+                    lines[2] = "State: " + lines[2] + '\n'
+                    lines[3] = "Zip: " + lines[3] + '\n'
+                    lines[4] = "Name: " + lines[4] + '\n'
+                    lines[5] = "ID #: " + lines[5] + '\n'
+                    lines[6] = "Is Suspended: " + lines[6] + '\n' 
                     rep_file.writelines(lines)
+                    rep_file.write('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SERVICE REPORT~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
 
                     for service in services:
                         lines = []
 
                         if service == '=': # check for EOF
-                            print("No services associated with member")
+                            rep_file.write("No services associated with member")
                             break 
 
                         with open(service, 'r') as s_file:
                             for line in s_file:
                                 lines.append(line) # write service line to current member's report file
+                        rep_file.write()
                         rep_file.write("Date of Service: ", line[0], '\n')
                         rep_file.write("Provider Name: ", line[1], '\n')
                         rep_file.write("Service Name: ", line[2], '\n')
