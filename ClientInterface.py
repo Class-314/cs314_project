@@ -28,7 +28,7 @@ class ClientInterface:
         
         # Enter and verify member ID
         if not self.verify_member_input():
-            print("Exising to main menu.")
+            print("Exiting to main menu.")
             return
         
         # print current provider
@@ -108,23 +108,333 @@ class ClientInterface:
 
     def manager_menu(self):
             while True:
-                print("0. Return to Main Menu")
                 print("\nManager Menu")
-                print("1. Manage Reports")
-                print("2. Manage Users")
+                print("1. Manage Members and Providers")
+                print("2. Manage Services")
+                print("3. Reports")
+                print("0. Return to Main Menu")
                 choice = input("Choose an option: ")
 
                 if choice == '1':
-                    # Implement view reports functionality
-                    print("\nViewing Reports")
+                    self.manage_users_menu()
                 elif choice == '2':
-                    # Implement manage users functionality
-                    print("\nManaging Users")
+                    self.manage_services_menu()
+                elif choice == '3':
+                    self.manage_reports_menu()
                 elif choice == '0':
                     break  # Exit loop to return to the main menu
                 else:
                     print("\nInvalid option. Please try again.")
-    
+
+
+##################################################################
+#                       User Management                          #
+##################################################################
+
+    def manage_users_menu(self):
+        while True:
+            print("\nUser Management")
+            print("1. Add Provider")
+            print("2. Modify Provider")
+            print("3. Remove Provider")
+            print("4. Add Member")
+            print("5. Modify Member")
+            print("6. Remove Member")
+            print("0. Return to Main Menu")
+            choice = input("Choose an option: ")
+
+            if choice == '1':
+                self.add_provider()
+            elif choice == '2':
+                self.modify_provider()
+            elif choice == '3':
+                self.remove_provider()
+            elif choice == '4':
+                self.add_member()
+            elif choice == '5':
+                    self.modify_member()
+            elif choice == '6':
+                    self.remove_member()
+            elif choice == '0':
+                break  # Exit loop to return to the main menu
+            else:
+                print("\nInvalid option. Please try again.")
+
+
+
+    def add_provider(self):
+        to_add = ProviderRecord()
+        user_input = 'n'
+        while user_input != 'y':
+            self.input_user(to_add)
+            to_add.ID = 111111111
+            print(to_add)
+            user_input = input("Does this information look correct? y/n: ")
+            user_input = user_input.lower()
+        self.DB_mgr.add_provider_record(to_add)
+                
+    def modify_provider(self):
+        user_input = 'n'
+        to_edit = None
+        while user_input != 'y':
+            if (self.verify_provider_input()):
+                to_edit = self.current_provider
+                self.current_provider = None
+                if not (to_edit is None):
+                    print(to_edit)
+                    user_input = input("Is this the Provider you wish to edit? (y/n): ")
+                    user_input = user_input.lower()
+            else:
+                user_input = 'y'
+        
+        if not (to_edit is None):
+            self.input_user(to_edit)
+            self.DB_mgr.edit_provider_record(to_edit)
+        
+        
+
+    def remove_provider(self):
+        user_input = 'n'
+        to_remove = None
+        while user_input != 'y':
+            self.verify_provider_input()
+            to_remove = self.current_provider
+            self.current_provider = None
+            print(to_remove)
+            user_input = input("Is this the Provider you wish to remove? (y/n): ")
+            user_input = user_input.lower()
+        self.DB_mgr.remove_provider_record(to_remove)
+
+    def add_member(self):
+        to_add = MemberRecord()
+        user_input = 'n'
+        while user_input != 'y':
+            self.input_user(to_add)
+            to_add.ID = 111111111
+            print(to_add)
+            user_input = input("Does this information look correct? y/n: ")
+            user_input = user_input.lower()
+            print(user_input)
+        
+        self.DB_mgr.add_member_record(to_add)  
+
+    def modify_member(self):
+        user_input = 'n'
+        to_edit = None
+        while user_input != 'y':
+            self.verify_member_input()
+            to_edit = self.current_member
+            self.current_member = None
+            print(to_edit)
+            user_input = input("Is this the Member you wish to edit? (y/n): ")
+            user_input = user_input.lower()
+        self.input_user(to_edit)
+        user_input = ''
+        user_input = input("Update membership suspension status? (y/n): ")
+        while (user_input != 'y' and user_input != 'n'):
+            print("Invalid entry, please enter y or n")
+            user_input = input("Change membership suspension status?")
+        if (user_input == 'y'):
+            to_edit.is_suspended = not to_edit.is_suspended
+            status = to_edit.convert_status()
+            print("Membership status has been updated to " + str(status))
+        self.DB_mgr.edit_member_record(to_edit)
+
+    def remove_member(self):
+        user_input = 'n'
+        to_remove = None
+        while user_input != 'y':
+            self.verify_member_input()
+            to_remove = self.current_member
+            self.current_member = None
+            print(to_remove)
+            user_input = input("Is this the Member you wish to remove? (y/n): ")
+            user_input = user_input.lower()
+        self.DB_mgr.remove_member_record(to_remove)  
+
+
+    def input_user(self, to_add):
+        while True:
+            try:
+                name_input = input("Enter User's Name: ")
+                to_add.name = name_input
+                break
+            except Exception as e:
+                print(e)
+
+        while True:
+            try:
+                street_input = input("Enter the User's Street: ")
+                to_add.street = street_input
+                break
+            except Exception as e:
+                print(e)
+
+        while True:
+            try:
+                city_input = input("Enter the User's city: ")
+                to_add.city = city_input
+                break
+            except Exception as e:
+                print(e)
+        while True:
+            try:
+                state_input = input("Enter the User's State Abbreviation: ")
+                to_add.state = state_input
+                break
+            except Exception as e:
+                print(e)
+        while True:
+            try:
+                zip_input = input("Enter the User's Zip Code: ")
+                to_add.zip = zip_input
+                break
+            except Exception as e:
+                print(e)
+        
+
+
+
+##################################################################
+#                       Service Management                       #
+##################################################################
+
+    def manage_services_menu(self):
+        while True:
+            print("\nService Management")
+            print("1. Add Service")
+            print("2. Modify Service")
+            print("3. Remove Service")
+            print("0. Return to Main Menu")
+            choice = input("Choose an option: ")
+
+            if choice == '1':
+                self.add_service()
+            elif choice == '2':
+                    self.modify_service()
+            elif choice == '3':
+                    self.remove_service()
+            elif choice == '0':
+                break  # Exit loop to return to the main menu
+            else:
+                print("\nInvalid option. Please try again.")
+
+    def add_service(self):
+        
+        user_input = 'n'
+        while user_input != 'y':
+            name, code, fee = self.input_service()
+            
+            print(name + ' ' + code + ' ' + fee)
+            user_input = input("Does this information look correct? y/n: ")
+            user_input = user_input.lower()
+        
+        self.DB_mgr.insert_directory_service(name, code, fee)
+
+    def modify_service(self):
+        user_input = 'y'
+        while user_input != 'n':
+            to_edit = input("Please enter the service code of the service to edit: ")
+            try:
+                service = self.DB_mgr.get_directory_service(to_edit)
+                if (service is None):
+                    print("Service does not exist")
+                    user_input = input("Try again? (y/n): ")
+                else:
+                    print(service)
+                    service[0], service[1], service[2] = self.input_service()
+                    self.DB_mgr.update_directory_service(service[0], service[1], service[2])
+                    break
+            except:
+                print("Invalid entry, please enter a 6 digit service code: ")
+
+                
+            
+
+    def remove_service(self):
+        user_input = 'n'
+        while user_input != 'y':
+            to_remove_code = input("Please enter ther service code of the service to remove: ")
+            try:
+                to_remove = self.DB_mgr.get_directory_service(to_remove_code)
+                print(to_remove)
+                user_input = input("Is this the service you'd like to remove? (y/n): ")
+            except:
+                print("Invalid entry, please enter a 6-digit service code")
+
+        self.DB_mgr.remove_directory_service(to_remove_code)
+                
+
+    def input_service(self):
+        service_name = input("Please enter the name of the service: ")
+        service_name = str(service_name)
+        while (len(service_name) > 20):
+            print("Invalid entry, please enter a name with 20 or less characters")
+            service_name = input("Please enter the name of the service: ")
+        service_code = input("Please enter the service code")
+        service_code = str(service_code)
+        while (len(service_code) != 6):
+            print("Invalid entry, please enter a 6 digit number")
+            service_code = input("Please enter the service code: ")
+        service_fee = input("Please enter the fee associated with the service: ")
+        while(float(service_fee) > 999.99):
+            print("Invalid Entry, fee must be less than $999.99")
+            service_fee = input("Please enter the fee associated with the service: ")
+        service_fee = str(service_fee)
+        return service_name, service_code, service_fee
+
+##################################################################
+#                       Report Management                        #
+##################################################################   
+
+    def manage_reports_menu(self):
+        while True:
+            print("\nReport Management")
+            print("1. Generate Member Reports")
+            print("2. Generate Individual Member Report")
+            print("3. Generate Provider Reports")
+            print("4. Generate Individual Provider Report")
+            print("5. Generate Summary Report")
+            print("6. Generate Weekly Report")
+            print("0. Return to Main Menu")
+            choice = input("Choose an option: ")
+
+            if choice == '1':
+                self.generate_member_reports()
+            elif choice == '2':
+                self.generate_member_report()
+            elif choice == '3':
+                self.generate_provider_reports()
+            elif choice == '4':
+                self.generate_provider_report()
+            elif choice == '5':
+                self.generate_summary_report()
+            elif choice == '6':
+                self.generate_member_reports()
+                self.generate_provider_reports()
+                self.generate_summary_report()
+            elif choice == '0':
+                break  # Exit loop to return to the main menu
+            else:
+                print("\nInvalid option. Please try again.")
+
+
+    def generate_member_reports(self):
+        pass
+
+    def generate_member_report(self):
+        pass
+
+    def generate_provider_reports(self):
+        pass
+
+    def generate_provider_report(self):
+        pass
+
+    def generate_summary_report(self):
+        pass
+
+
     # Check if the provider ID exists 
     def verify_provider_exists(self, provider_id):
         if self.DB_mgr.ID_exists(provider_id):

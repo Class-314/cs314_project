@@ -537,8 +537,8 @@ class ProviderRecord(UserRecord):
 
     def __str__(self):
         string = super().__str__()
-        string += ("Consultations: " + str(self.num_consultations))
-        string += ("\nTotal Payment Due: " + str(self.total_payment))
+        # string += ("Consultations: " + str(self.num_consultations))
+        # string += ("\nTotal Payment Due: " + str(self.total_payment))
         return string
 
     def __eq__(self, other):
