@@ -756,15 +756,28 @@ class DatabaseManager:
         return
 
     def write_summary_report(self):
-        #get every provider that provided service for the week
-            #get number of consultations each provider had
-            #get total fee for the week per provider
-        with open('Reports/summary_report.txt', 'w') as file:
-            # Write to the file
-            file.write("SUMMARY REPORT:")
-        
-        #get total number of providers who provided services
-        #get total number of consultations, and the overall fee total are printed.
+        summary_report_path = self.Summary_reports_relative_path + "summaryreport.txt"
+        num_providers = 0
+        overall_fee = 0.0
+
+        existing_files = glob.glob(f"{self.ProviderRecords_relative_path}/P*.txt")
+        with open(summary_report_path, 'w') as rep_file:
+            rep_file.write("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SUMMARY REPORT~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+            for file in existing_files:
+                with open(file, 'r') as p_file:
+                    lines = []
+                    for line in p_file:
+                        lines.append(line.strip())
+                    if(len(lines) > 9): #if no services in provider's record file, dont add to summary
+                        num_providers += 1
+                        #overall_fee += float(lines[7])
+                        rep_file.write("Provider: " + lines[4] + '\n')
+                        #rep_file.write("\tNumber of consultations: " + str(lines[6]) + '\n')
+                        #rep_file.write("\tTotal payment owed: " + str(lines[7]) + '\n\n')
+                    else:
+                        continue
+            rep_file.write("\n# of Providers who serviced: " + str(num_providers) + '\n')
+            rep_file.write("Overall fee owed: $" + str(overall_fee) + '\n')
 
         return
     
@@ -779,6 +792,7 @@ class DatabaseManager:
 Data= DatabaseManager()
 Data.load_IDs()
 Data.load_directory()
+Data.write_summary_report()
 #Data.write_all_member_reports()
 #Data.write_all_provider_reports()
 #Data.write_member_report(100111565)
