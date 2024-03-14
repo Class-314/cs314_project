@@ -666,7 +666,7 @@ class DatabaseManager:
         return
 
     
-    def gen_all_member_reports(self):
+    def write_all_member_reports(self):
         existing_files = glob.glob(f"{self.MemberRecords_relative_path}/M*.txt")
         for file in existing_files:
             with open(file, 'r') as m_file:
@@ -744,7 +744,7 @@ class DatabaseManager:
 
         return
 
-    def gen_all_provider_reports(self):
+    def write_all_provider_reports(self):
         existing_files = glob.glob(f"{self.ProviderRecords_relative_path}/P*.txt")
         for file in existing_files:
             with open(file, 'r') as p_file:
@@ -779,8 +779,8 @@ class DatabaseManager:
 Data= DatabaseManager()
 Data.load_IDs()
 Data.load_directory()
-Data.gen_all_member_reports()
-#Data.gen_all_provider_reports()
+#Data.write_all_member_reports()
+#Data.write_all_provider_reports()
 #Data.write_member_report(100111565)
 #serve= ServiceRecord("123456",101011253,100111565,"01-23-2024","destroyer of worlds", 123)
 #Data.add_service_record(serve)
