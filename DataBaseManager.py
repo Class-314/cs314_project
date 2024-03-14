@@ -1,9 +1,13 @@
 import sys
 import os
+import glob
 import bisect
 from pprint import pprint
 from Records import *
-
+import random
+import string
+import datetime
+import re
 #holds directory of serivices name/id/fee
 class DatabaseManager:
 
@@ -427,7 +431,59 @@ class DatabaseManager:
 ##################################################################################################
 #####################################Service Records #############################################
 ##################################################################################################
+    def add_service_record(self,to_add_record):
 
+        if isinstance(to_add_record, ServiceRecord) == False:
+            print("Item is not a ServiceRecord.")
+            return False
+
+        data_dict = self.package_into_dict(to_add_record)
+
+        # List all existing files that match the pattern
+        existing_files = glob.glob(f"{self.ServiceRecords_relative_path}/SR*.txt")
+
+        # Extract the integer part from the filename, if possible
+        existing_numbers = []
+        for f in existing_files:
+            match = re.search(r'SR(\d+)_', f)
+            if match:
+                existing_numbers.append(int(match.group(1)))
+
+
+        # Find the maximum number if any files exist, or start with 0 if the directory is empty
+        next_number = max(existing_numbers, default=0) + 1 if existing_numbers else 0
+
+        
+        date=data_dict["Date Provided"]
+        formatted_date=date.replace("-","")
+
+        # Construct the new filename with the incremented number
+        new_filename_with_prefix = f"SR{next_number}_{formatted_date}.txt"
+
+        relative_file_path = self.ServiceRecords_relative_path + new_filename_with_prefix
+
+
+        # Check if the ID already exists
+        value = self.ID_exists(relative_file_path)
+        if value ==True:
+
+                    print("The Service Record already exists on File. No new record will be created.")
+                    return False # Return False or an appropriate value to indicate the file already exists
+        else:
+            with open(relative_file_path, 'w') as file:
+
+                for key, value in data_dict.items():
+                    file.write(f"{value}\n")
+
+        print(f"Serivce Record successfully uploaded to the database")
+
+        m_update= self.update_member_with_service_record_fname(to_add_record.mID,new_filename_with_prefix) 
+        p_update =self.update_provider_with_service_record_fname(to_add_record.pID,new_filename_with_prefix)
+    
+        if m_update== False or p_update == False:
+            return False
+        else:
+            return True
 
 
 
@@ -550,11 +606,12 @@ class DatabaseManager:
 
 
 
-    def write_member_report(self):
+    def write_member_report(self, mID):
 
-        for id in self.IDs: #loop through member ids
-            member_report_path = str(self.Member_reports_relative_path + 'MR' + id + '.txt') # create path for each member report file
-            member_record_path = str(self.MemberRecords_relative_path + 'M' + id + '.txt') # create path for each member report file
+        member_report_path = str(self.Member_reports_relative_path + 'MR' + str(mID) + '.txt') # create path for each member report file
+        member_record_path = str(self.MemberRecords_relative_path + 'M' + str(mID) + '.txt') # create path for each member report file
+
+        if os.path.exists(member_record_path):
 
             with open(member_report_path, 'w') as rep_file: # create and open member's report file
                 rep_file.write("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~MEMBER REPORT~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
@@ -580,7 +637,7 @@ class DatabaseManager:
                     lines[5] = "ID #: " + lines[5] + '\n'
                     lines[6] = "Is Suspended: " + lines[6] + '\n' 
                     rep_file.writelines(lines)
-                    rep_file.write('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SERVICE REPORT~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
+                    rep_file.write('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SERVICE REPORT~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
 
                     for service in services:
                         lines = []
@@ -591,34 +648,112 @@ class DatabaseManager:
 
                         with open(service, 'r') as s_file:
                             for line in s_file:
-                                lines.append(line) # write service line to current member's report file
-                        rep_file.write()
-                        rep_file.write("Date of Service: ", line[0], '\n')
-                        rep_file.write("Provider Name: ", line[1], '\n')
-                        rep_file.write("Service Name: ", line[2], '\n')
+                                lines.append(line.strip()) # write service line to current member's report file
+
+                        provider_record_path = str(self.ProviderRecords_relative_path + 'P' + str(lines[3]) + '.txt') # path to provider record to get name
+
+                        with open(provider_record_path, 'r') as prov_file: #open provider file to get provider name
+                            prov_lines = []
+                            for line in prov_file:
+                                prov_lines.append(line.strip())
+
+                        rep_file.write("Date of Service: " + lines[6] + '\n') #write service info to member file
+                        rep_file.write("Provider Name: " + prov_lines[4] + '\n')
+                        rep_file.write("Service Name: " + lines[0] + '\n')
+        else:
+            print(member_record_path, "does not exist.")
 
         return
 
-
-    def write_provider_report(self):
-
-        provider_report_path = self.Provider_reports_relative_path + 'PR' + id + '.txt' # create path for each provider report file
-        provider_record_path = self.MemberRecords_relative_path + 'P' + id + '.txt' # create path for each provider report file
-
-        for id in self.IDs:
-            with open(provider_report_path, 'w') as rep_file:
-
-                with open(provider_record_path, 'r') as p_file:
-                    lines = []
-
-
-        #get service info with member name and number
-
-        #get total number of consultations with members
-
-        #get total fee for the week 
+    
+    def gen_all_member_reports(self):
+        existing_files = glob.glob(f"{self.MemberRecords_relative_path}/M*.txt")
+        for file in existing_files:
+            with open(file, 'r') as m_file:
+                lines = []
+                for line in m_file:
+                    lines.append(line.strip())
+            self.write_member_report(lines[5])
         return
 
+
+    def write_provider_report(self, pID):
+
+        provider_report_path = str(self.Provider_reports_relative_path + 'PR' + str(pID) + '.txt') # create path for each provider report file
+        provider_record_path = str(self.ProviderRecords_relative_path + 'P' + str(pID) + '.txt') # create path for each provider report file
+
+        if os.path.exists(provider_record_path):
+
+            with open(provider_report_path, 'w') as rep_file: # create and open member's report file
+                rep_file.write("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~PROVIDER REPORT~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+
+                with open(provider_record_path, 'r') as prov_file: # open member record file
+                    lines = [] # member record info 
+                    services = [] # service files for members service info
+                    read_services = False
+
+                    for line in prov_file:
+                        # Check if the line contains the '=' symbol
+                        if '=' in line:
+                            read_services = True
+                        if(read_services):
+                            services.append(line.strip()) # Append service file name to services list
+                        else:
+                            lines.append(line)  # Append the line to the list
+                    lines[0] = "Street: " + lines[0] + '\n'
+                    lines[1] = "City: " + lines[1] + '\n'
+                    lines[2] = "State: " + lines[2] + '\n'
+                    lines[3] = "Zip: " + lines[3] + '\n'
+                    lines[4] = "Name: " + lines[4] + '\n'
+                    lines[5] = "ID #: " + lines[5] + '\n'
+                    #num_consultations = lines[6]
+                    rep_file.writelines(lines)
+                    rep_file.write('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SERVICE REPORT~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
+
+                    total_fee = 0.0
+                    for service in services:
+                        lines = []
+
+                        if service == '=': # check for EOF
+                            rep_file.write("No services associated with provider\n")
+                            break 
+
+                        with open(service, 'r') as s_file:
+                            for line in s_file:
+                                lines.append(line.strip()) 
+
+                        member_record_path = str(self.MemberRecords_relative_path + 'M' + str(lines[4]) + '.txt') # path to member record to get name
+
+                        with open(member_record_path, 'r') as mem_file: #open member file to get provider name
+                            mem_lines = []
+                            for line in mem_file:
+                                mem_lines.append(line.strip())
+
+                        rep_file.write("Date of Service: " + lines[6] + '\n') #write service info to member file
+                        rep_file.write("Date and time data received: " + lines[7] + '\n')
+                        rep_file.write("Member Name: " + mem_lines[4] + '\n')
+                        rep_file.write("Service Code: " + lines[2] + '\n')
+                        rep_file.write("Fee to be paid: $" + str(lines[1]) + '\n')
+                        total_fee += float(lines[1]) #add service fee to provider's total fee
+
+                    rep_file.write("Total fee to be paid: $" +  str(total_fee) + '\n')
+                    #rep_file.write("Number of consultations: ", num_consultations, '\n')
+                    
+        else:
+            print(provider_record_path, "does not exist.")
+
+        return
+
+    def gen_all_provider_reports(self):
+        existing_files = glob.glob(f"{self.ProviderRecords_relative_path}/P*.txt")
+        for file in existing_files:
+            with open(file, 'r') as p_file:
+                lines = []
+                for line in p_file:
+                    lines.append(line.strip())
+            self.write_provider_report(lines[5])
+
+        return
 
     def write_summary_report(self):
         #get every provider that provided service for the week
@@ -644,8 +779,12 @@ class DatabaseManager:
 Data= DatabaseManager()
 Data.load_IDs()
 Data.load_directory()
-Data.write_member_report()
-#Data.write_provider_report()
+Data.gen_all_member_reports()
+#Data.gen_all_provider_reports()
+#Data.write_member_report(100111565)
+#serve= ServiceRecord("123456",101011253,100111565,"01-23-2024","destroyer of worlds", 123)
+#Data.add_service_record(serve)
+#Data.write_provider_report(101011253)
 #Data.write_summary_report()
 #Data.write_eft_data()
 #member = MemberRecord()
