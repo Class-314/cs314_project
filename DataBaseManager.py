@@ -5,6 +5,7 @@ import bisect
 from Records import *
 import random
 import string
+import datetime
 import time
 
 #test
@@ -21,6 +22,10 @@ class DatabaseManager:
         # Relative Paths spawning from inside programs directory#
         self.MemberRecords_relative_path = "Data/UserRecords/MemberRecords/"
         self.ProviderRecords_relative_path = "Data/UserRecords/ProviderRecords/"
+        self.MemberReports_relative_path = "Data/Reports/MemberReports/"
+        self.ProviderReports_relative_path = "Data/Reports/ProviderReports/"
+        self.EFTDataReports_relative_path = "Data/Reports/EFTDataReports/"
+        self.SummaryReports_relative_path = "Data/Reports/SummaryReports/"
         self.ServiceRecords_relative_path = "Data/ServiceRecords/"
         self.ServiceDirectory_relative_path = "Data/services.txt"
         self.Registerd_IDs_relative_path = "Data/Registerd_IDs.txt"
@@ -135,7 +140,6 @@ class DatabaseManager:
                 "Name": to_add_record.name,
                 "ID": to_add_record.ID,
                 "Is Suspended": to_add_record.is_suspended
-
             }
             return data_dict
         elif isinstance(to_add_record, ProviderRecord):
@@ -145,12 +149,15 @@ class DatabaseManager:
                 "State": to_add_record.state,
                 "Zip": to_add_record.zip,
                 "Name": to_add_record.name,
-                "ID": to_add_record.ID,
-#                "Number Consultations": to_add_record.num_consultations,
-                #"Total Payment": to_add_record.total_payment
+                "ID": to_add_record.ID
             }
             return data_dict
         elif isinstance(to_add_record, ServiceRecord):
+
+            if (to_add_record.comments is None):
+                to_add_record.comments = "None"
+            
+
             data_dict = {
                 "Name": to_add_record.name,
                 "Fee": to_add_record.fee,
@@ -161,6 +168,7 @@ class DatabaseManager:
                 "Date Provided": to_add_record.date_provided,
                 "Current DateTime": to_add_record.current_datetime
             }
+
             return data_dict
 
         return None
@@ -574,22 +582,24 @@ class DatabaseManager:
             print("Item is not a ServiceRecord.")
             return False
 
+
         data_dict = self.package_into_dict(to_add_record)
-        """
-        # List all existing files that match the pattern
-        existing_files = glob.glob(f"{self.ServiceRecords_relative_path}/SR*.txt")
+        # """
+        # # List all existing files that match the pattern
+        # existing_files = glob.glob(f"{self.ServiceRecords_relative_path}/SR*.txt")
 
-        # Extract the integer part from the filename, if possible
-        existing_numbers = []
-        for f in existing_files:
-            match = re.search(r'SR(\d+)_', f)
-            if match:
-                existing_numbers.append(int(match.group(1)))
+        # # Extract the integer part from the filename, if possible
+        # existing_numbers = []
+        # for f in existing_files:
+        #     match = re.search(r'SR(\d+)_', f)
+        #     if match:
+        #         existing_numbers.append(int(match.group(1)))
 
 
-        # Find the maximum number if any files exist, or start with 0 if the directory is empty
-        next_number = max(existing_numbers, default=0) + 1 if existing_numbers else 0
-        """
+        # # Find the maximum number if any files exist, or start with 0 if the directory is empty
+        # next_number = max(existing_numbers, default=0) + 1 if existing_numbers else 0
+        # """
+
         self.SR_count += 1
         next_number = str(self.SR_count)
         self.update_SR_file_count()
@@ -598,7 +608,7 @@ class DatabaseManager:
         #now = datetime.datetime.now()
         # Format the date as MM-DD-YYYY without dashes
         #formatted_date = now.strftime("%m%d%Y")
-        now = data_dict["Current DateTime"]
+        now = data_dict["Date Provided"]
         formatted_date = now.replace('-','')
 
         # Construct the new filename with the incremented number
@@ -795,83 +805,326 @@ class DatabaseManager:
     
 
 
-
-    def write_member_report(self):
-        #get member info from member record
-        with open('Reports/member_report.txt', 'w') as file:
-            # Write to the file
-            file.write("MEMBER REPORT:\n\n")
-            #for id in self.IDs:
-            #with open(self.MemberRecords_relative_path + 'U' + id, 'r') as mem_file:
-            with open('Data/UserRecords/MemberRecords/U123456789.txt', 'r') as mem_file:
-                lines = []
-
-                # Read lines from the source file
-                for line in mem_file:
-                    # Check if the line contains the '=' symbol
-                    if '=' in line:
-                        break  # Stop reading lines when '=' is encountered
-                    lines.append(line)  # Append the line to the list
-                file.writelines(lines)
-                    
-            
-            
-            ''' 
-            for serv in self.directory:
-                file.write("Service: ")
-                file.write(str(serv[0]))
-                file.write("\n")
-                file.write("ID: ")
-                file.write(str(serv[1]))
-                file.write("\n")
-                file.write("Fee: ")
-                file.write(str(serv[2]))
-                file.write("\n\n")
-            '''
+    def write_weekly_member_report(self):
+        sr_filepath = self.ServiceRecords_relative_path
+        sr_files = os.listdir(sr_filepath)
+        mID_list = []
+        for file_name in sr_files:
+            if os.path.isfile(os.path.join(sr_filepath, file_name)):
+                if (file_name[0] == 'S'):
+                    service_date = self.strip_service_date(file_name)
+                    if (self.check_date(str(service_date))):
+                        filepath = sr_filepath + file_name
+                        curr_mID = self.get_mid(filepath)
+                        # print(curr_mID)
+                        if not (curr_mID in mID_list):
+                            mID_list.append(curr_mID)
+                        self.write_member_report(curr_mID)
 
 
+    def get_mid(self, filepath):
+        with open(filepath, 'r') as file:
+            lines = file.readlines()
+            mID = lines[4]
+        return int(mID)
 
 
-        #get provider and services provided to member
-
-        #write in order of date of service provided
-
-        return
-
-
-    def write_provider_report(self):
-        #get provider infor from provider record
-        with open('Reports/provider_report.txt', 'w') as file:
-            # Write to the file
-            file.write("Provider Report:")
-
-        #get service info with member name and number
-
-        #get total number of consultations with members
-
-        #get total fee for the week 
-        return
+    def write_weekly_provider_report(self):
+        sr_filepath = self.ServiceRecords_relative_path
+        sr_files = os.listdir(sr_filepath)
+        pID_list = []
+        for file_name in  sr_files:
+            if os.path.isfile(os.path.join(sr_filepath, file_name)):
+                if (file_name[0] == 'S'):
+                    service_date = self.strip_service_date(file_name)
+                    if (self.check_date(str(service_date))):
+                        filepath = sr_filepath + file_name
+                        curr_pID = self.get_pid(filepath)
+                        # print(curr_mID)
+                        if not (curr_pID in pID_list):
+                            pID_list.append(curr_pID)
+                        self.write_provider_report(curr_pID)
+            else:
+                raise ValueError("Filepath does not exist")
 
 
-    def write_summary_report(self):
-        #get every provider that provided service for the week
-            #get number of consultations each provider had
-            #get total fee for the week per provider
-        with open('Reports/summary_report.txt', 'w') as file:
-            # Write to the file
-            file.write("Summary Report:")
+    def get_pid(self, filepath):
+        with open(filepath, 'r') as file:
+            lines = file.readlines()
+            pID = lines[3]
+        return int(pID)
+
+    def write_member_report(self, mID):
+        if not self.ID_exists(mID):
+            print("Member does not exist")
+            return
         
-        #get total number of providers who provided services
-        #get total number of consultations, and the overall fee total are printed.
+        member = self.get_member(mID)
+        record_path = str(self.MemberRecords_relative_path + 'M' + str(mID) + '.txt')
+        service_file_list = self.get_service_list(record_path)
 
-        return
+        if (len(service_file_list)) == 0:
+            return
+        
+        current_date = datetime.datetime.now().replace(microsecond=0)
+        current_date = current_date.strftime("%m-%d-%Y")
+        member_report_file = str(self.MemberReports_relative_path + str(member.name) + "_" + str(current_date) + ".txt")
+
+        with open(member_report_file, 'w') as file:
+            lines = []
+            lines.append("================ Member Report ============\n")
+            lines.append(str(member.name + '\n'))
+            lines.append(str(member.ID) + '\n')
+            lines.append(str(member.street) + '\n')
+            lines.append(str(member.city) + '\n')
+            lines.append(str(member.state) + '\n')
+            lines.append(str(member.zip) + "\n\n")
+            
+            lines.append("Services recieved this week: " + '\n\n')
+            for service in service_file_list:
+                date = self.get_service_date(service)
+                hacky_list = self.get_service_info(service)
+                prov_name = hacky_list["provider"].name
+                service_desc = str(service[0])[:-4]
+                lines.append("=====" + str(service_desc) + "=====\n")
+                lines.append("Service Date: " + str(date) + '\n')
+                lines.append("Provider: " + str(prov_name) + '\n')
+                lines.append("Service: " + str(hacky_list["service_name"]) + '\n\n')
+
+            file.writelines(lines)
+        
+    def write_provider_report(self, pID):
+        if not self.ID_exists(pID):
+            print("Provider does not exist")
+            return
+        
+        provider = self.get_provider(pID)
+        record_path = str(self.ProviderRecords_relative_path + 'P' + str(pID) + '.txt')
+        service_file_list = self.get_service_list(record_path)
+
+        if (len(service_file_list)) == 0:
+            return
+        
+        current_date = datetime.datetime.now().replace(microsecond=0)
+        current_date = current_date.strftime("%m-%d-%Y")
+        provider_report_file = str(self.ProviderReports_relative_path + str(provider.name) + "_" + str(current_date) + ".txt")
+
+        with open(provider_report_file, 'w') as file:
+            lines = []
+            num_consultations = 0
+            total_fee = 0
+            lines.append("================ Provider Report ============\n")
+            lines.append(str(provider.name + '\n'))
+            lines.append(str(provider.ID) + '\n')
+            lines.append(str(provider.street) + '\n')
+            lines.append(str(provider.city) + '\n')
+            lines.append(str(provider.state) + '\n')
+            lines.append(str(provider.zip) + "\n\n")
+            
+            lines.append("Services provided this week: " + '\n\n')
+            for service in service_file_list:
+                date = self.get_service_date(service)
+                hacky_list = self.get_service_info(service)
+                total_fee += float(hacky_list["fee"])
+                num_consultations += 1
+                service_desc = str(service[0])[:-4]
+                lines.append("=====" + str(service_desc) + "=====\n")
+                lines.append("Date Provided: " + str(date) + '\n')
+                lines.append("Date Received: " + str(hacky_list["curr_datetime"]))
+                lines.append("Member Name: " +  str(hacky_list["member"].name) + '\n')
+                lines.append("Member ID: " + str(hacky_list["mID"]))
+                lines.append("Service Code: " + str(hacky_list["sID"]))
+                lines.append("Service Fee: " + str(hacky_list["fee"]) + '\n')
+
+
+            lines.append("Total number of consultations: " + str(num_consultations) + '\n')
+            lines.append("Total fee for the week: $" + str(total_fee))
+            file.writelines(lines)
+
+            self.write_eft_data(hacky_list["provider"], total_fee)
+
+
+    def get_service_info(self, service):
+        filepath = self.ServiceRecords_relative_path
+        filepath += service[0]
+        with open(filepath, 'r') as file:
+            lines = file.readlines()
+            service_name = lines[0]
+            fee = lines[1]
+            sID = lines[2]
+            pID = lines[3]
+            mID = lines[4]
+            comments = lines[5]
+            date_provided = lines[6]
+            curr_datetime = lines[7]
+
+        provider = self.get_provider(pID)
+        member = self.get_member(mID)
+
+        hacky_list = {
+            "service_name" : service_name, 
+            "fee" : fee, 
+            "sID" : sID, 
+            "pID" : pID, 
+            "mID" : mID, 
+            "comments" : comments, 
+            "date_provided" : date_provided, 
+            "curr_datetime" : curr_datetime, 
+            "provider" : provider, 
+            "member" : member}
+        
+        return hacky_list
+
+
+    def get_service_date(self, service):
+        date = datetime.datetime.strptime(service[1], "%Y-%m-%d")
+        date = date.strftime("%m-%d-%Y")
+        return date
+
+
+    def get_service_list(self, record_path):
+        service_file_list = {}
+        # print(record_path)
+        if os.path.exists(record_path):
+            with open(record_path, 'r') as rec_file:
+                lines = rec_file.readlines()[7:]
+                for line in lines:
+                    if line[0] == 'S':
+                        line = line[:-1]
+                        service_date = self.strip_service_date(line)
+                        if self.check_date(service_date):
+                            service = line
+                            service_datetime = self.convert_service_date(service_date)
+                            service_file_list[service] = str(service_datetime)
+                
+        else:
+            raise ValueError("Record does not exist in database")
+        
+
+        service_file_list = sorted(service_file_list.items(), key=lambda x: datetime.datetime.strptime(x[1], "%Y-%m-%d"))
+        # print(service_file_list)
+        return service_file_list        
     
-    def write_eft_data(self):
-        with open('Reports/eft_data.txt', 'w') as file:
-            # Write to the file
-            file.write("EFT Data Report:")
-        pass
+  
+    def check_date(self, service_date_string):
+        service_datetime = self.convert_service_date(service_date_string)
+        current_date_time = datetime.datetime.now()
+        week_start = current_date_time - datetime.timedelta(days=7)
+        week_start = week_start.date()
+        if service_datetime < week_start:
+            return False
+        else:
 
+            return True
+
+
+    def convert_service_date(self, service_date_string):
+        year = int(service_date_string[-4:])
+        month = int(service_date_string[0:2])
+        day = int(service_date_string[2:4])
+        service_datetime = datetime.date(year, month, day)
+        return service_datetime
+
+    def strip_service_date(self, line):
+        service_date = line.split('_', 1)[-1]
+        service_date = service_date[:-4]
+        return service_date
+
+    def get_member(self, mID):
+        mID = int(mID)
+        # Use placeholder values that pass the Address validation
+        minimal_address = Address("NA", "NA", "NA", "97205")
+        
+        # Attempt to create a ProviderRecord with placeholder values
+        # Important: Adjust this based on what ProviderRecord and Address validations allow
+        temp_member = MemberRecord("NA", mID, minimal_address)
+        
+        # Fetch the provider record
+        member_record = self.get_member_record(temp_member)
+        return member_record
+
+    def get_provider(self, provider_id):
+        provider_id = int(provider_id)
+        # Use placeholder values that pass the Address validation
+        minimal_address = Address("NA", "NA", "NA", "97205")
+        
+        # Attempt to create a ProviderRecord with placeholder values
+        # Important: Adjust this based on what ProviderRecord and Address validations allow
+        temp_provider = ProviderRecord("NA", provider_id, minimal_address)
+        
+        # Fetch the provider record
+        provider_record = self.get_provider_record(temp_provider)
+        
+        return provider_record
+
+
+    def get_pid_list(self):
+        sr_filepath = self.ServiceRecords_relative_path
+        sr_files = os.listdir(sr_filepath)
+        pID_list = []
+        for file_name in  sr_files:
+            if os.path.isfile(os.path.join(sr_filepath, file_name)):
+                if (file_name[0] == 'S'):
+                    service_date = self.strip_service_date(file_name)
+                    if (self.check_date(str(service_date))):
+                        filepath = sr_filepath + file_name
+                        curr_pID = self.get_pid(filepath)
+                        # print(curr_mID)
+                        if not (curr_pID in pID_list):
+                            pID_list.append(curr_pID)
+                        
+            else:
+                raise ValueError("Filepath does not exist")
+        return pID_list
+            
+    def write_summary_report(self):
+        num_providers = 0
+        num_consultations = 0
+        overall_fee = 0.0
+        pID_list = self.get_pid_list()
+        curr_date = datetime.date.today()
+        curr_date = curr_date.strftime("%m-%d-%Y")
+        filepath = self.SummaryReports_relative_path + str(curr_date) + ".txt"
+        with open(filepath, 'w') as file:
+            lines = []
+            for pID in pID_list:
+                provider = self.get_provider(pID)
+                record_path = str(self.ProviderRecords_relative_path + 'P' + str(pID) + '.txt')
+                service_file_list = self.get_service_list(record_path)
+                fee = self.get_total_fee(service_file_list)
+                fee = "{:.2f}".format(fee)
+                lines.append("Provider: " + str(provider.name) + '\n')
+                lines.append("Number of Consultations: " + str(len(service_file_list)) + '\n')
+                lines.append("Total fee: $" + str(fee) + '\n\n')
+                num_providers += 1
+                num_consultations += (len(service_file_list))
+                overall_fee += float(fee)
+
+            lines.append("Total number of Providers who provided services this week: " + str(num_providers) + '\n')
+            lines.append("Total number of consultations this week: " + str(num_consultations) + '\n')
+            lines.append("Overall fee total for this week: " + str(overall_fee) + '\n')
+            file.writelines(lines)
+
+
+    def get_total_fee(self, service_file_list):
+        total_fee = 0
+        for service in service_file_list:
+            hacky_list = self.get_service_info(service)
+            total_fee += float(hacky_list["fee"])
+        return total_fee
+        
+
+    def write_eft_data(self, provider, payment_owed):
+        filepath = self.EFTDataReports_relative_path + str(provider.name) + "_" + "EFT.txt"
+        with open(filepath, 'w') as file:
+            lines = []
+            lines.append(str(provider.name) + '\n')
+            lines.append(str(provider.ID) + '\n')
+            payment_owed = "{:.2f}".format(payment_owed)
+            lines.append("$" + str(payment_owed))
+
+            file.writelines(lines)
+        
 
 #tests
 #data = DatabaseManager()

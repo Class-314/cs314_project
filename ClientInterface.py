@@ -644,47 +644,49 @@ class ClientInterface:
                 print("The date entered is invalid or does not match the format MM-DD-YYYY. Please try again.")
         
         update_success = False  # Initialize update_success to False
-        try:
+        # try:
             # Fetch service details using the service_code
-            service_details = self.DB_mgr.get_directory_service(service_code)
+        service_details = self.DB_mgr.get_directory_service(service_code)
+        
+        if service_details:
+            # Unpack the fetched details
+            fetched_name, fetched_sid, fetched_fee = service_details 
             
-            if service_details:
-                # Unpack the fetched details
-                fetched_name, fetched_sid, fetched_fee = service_details 
-                
-                # Assuming placeholders for missing data
-                #service_code =  int(fetched_sid)
-                #service_name = fetched_name
-                #service_fee = float(fetched_fee)
-                service_code =  fetched_sid
-                service_name = fetched_name
-                service_fee = fetched_fee
-                
-                # Check if a comment was provided by the user
-                if service_comment:  
-                    # Create the ServiceRecord object with the comment
-                    service_record = ServiceRecord(service_code, service_provider.ID, service_member.ID, service_date_str, service_name, service_fee, service_comment)
-                else:
-                    # Create the ServiceRecord object without the comment
-                    service_record = ServiceRecord(service_code, service_provider.ID, service_member.ID, service_date_str, service_name, service_fee)
-                
-                # Attempt to add the service record via the Database Manager
-                update_success = self.DB_mgr.add_service_record(service_record)
+            # Assuming placeholders for missing data
+            #service_code =  int(fetched_sid)
+            #service_name = fetched_name
+            #service_fee = float(fetched_fee)
+            service_code =  fetched_sid
+            service_name = fetched_name
+            service_fee = fetched_fee
             
-            # Initialize update_success to False at the beginning of the try block to ensure it's defined
+            # Check if a comment was provided by the user
+            if service_comment:  
+                # Create the ServiceRecord object with the comment
+                service_record = ServiceRecord(service_code, service_provider.ID, service_member.ID, service_date_str, service_comment, service_name, service_fee)
             else:
-                update_success = False
-                print("Failed to fetch service details.")
+                # Create the ServiceRecord object without the comment
+                service_record = ServiceRecord(service_code, service_provider.ID, service_member.ID, service_date_str, service_name, service_fee)
             
-            if update_success:
-                print("Service successfully updated in the directory.")
-                return True
-            else:
-                print("Failed to update service in the directory.")
-                return False
-        except Exception as e:
-            print(f"An error occurred while writing service: {e}")
+
+
+            # Attempt to add the service record via the Database Manager
+            update_success = self.DB_mgr.add_service_record(service_record)
+        
+        # Initialize update_success to False at the beginning of the try block to ensure it's defined
+        else:
+            update_success = False
+            print("Failed to fetch service details.")
+        
+        if update_success:
+            print("Service successfully updated in the directory.")
+            return True
+        else:
+            print("Failed to update service in the directory.")
             return False
+        # except Exception as e:
+        #     print(f"An error occurred while writing service: {e}")
+        #     return False
 
     '''
     # Refresh the member directory

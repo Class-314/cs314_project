@@ -77,7 +77,7 @@ class ServiceRecord:
     
     @property
     def fee(self):
-        return int(self._fee)
+        return str(self._fee)
     
     @property
     def comments(self):

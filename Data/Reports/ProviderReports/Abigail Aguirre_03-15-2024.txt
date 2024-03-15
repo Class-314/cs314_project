@@ -1,0 +1,36 @@
+================ Provider Report ============
+Abigail Aguirre
+101027954
+9587 Lopez Parks Suite 985
+Thomasland
+WV
+48610
+
+Services provided this week: 
+
+=====SR29_03082024=====
+Date Provided: 03-08-2024
+Date Received: 03-15-2024 02:09:50
+Member Name: Andrew Fuentes
+Member ID: 100752672
+Service Code: 808707
+Service Fee: 54.89
+
+=====SR25_03092024=====
+Date Provided: 03-09-2024
+Date Received: 03-15-2024 01:54:30
+Member Name: Test Nmae
+Member ID: 100112136
+Service Code: 345987
+Service Fee: 444.44
+
+=====SR24_03122024=====
+Date Provided: 03-12-2024
+Date Received: 03-15-2024 01:54:12
+Member Name: Test Nmae
+Member ID: 100112136
+Service Code: 808707
+Service Fee: 54.89
+
+Total number of consultations: 3
+Total fee for the week: $554.22
