@@ -81,7 +81,7 @@ class DatabaseManager:
             print("The Member already exists on File. No new record will be created.")
             return False # Return False or an appropriate value to indicate the file already exists
         else:
-            self.IDs[str(ID)] =""
+            self.IDs[str(ID)] = ""
             with open(self.Registerd_IDs_relative_path, 'a') as file:
                 file.write(f"{ID}\n")
             
@@ -146,8 +146,29 @@ class DatabaseManager:
 
 
     def generate_random_ID(self):
-        # Define the character set including digits and asterisks
-        char_set = string.digits 
+        timestamp = int(time.time())
+        timestamp = self.shuffle_digits(timestamp)
+        rand_num = random.randint(1,999999)
+        timestamp = str(timestamp)
+        uid = timestamp[:6] + str(rand_num)[:2]
+        rand_fill = str(random.randint(1, 8))
+        uid = uid[:9].ljust(9, rand_fill)
+
+        while uid in self.IDs:
+            timestamp = int(time.time())
+            timestamp = self.shuffle_digits(timestamp)
+            rand_num = random.randint(1,999999)
+            timestamp = str(timestamp)
+            uid = timestamp[:6] + str(rand_num)[:2]
+            rand_fill = str(random.randint(1, 8))
+            uid = uid[:9].ljust(9, rand_fill)
+        
+        if (uid[0] == 0):
+            uid[0] = rand_fill+1
+
+        return int(uid)
+        # # Define the character set including digits and asterisks
+        # char_set = string.digits 
 
         # Generate a random ID of length 9
         new_ID = ''.join(random.choice(char_set) for _ in range(9))
@@ -174,7 +195,9 @@ class DatabaseManager:
 
         data_dict = self.package_into_dict(to_add_record)
 #       file_name = data_dict["ID"]
-        file_name = self.generate_random_ID()
+        to_add_record.ID = self.generate_random_ID()
+        data_dict["ID"] = to_add_record.ID
+        file_name = to_add_record.ID
         
         
         file_name_with_prefix = "M" + str(file_name) + ".txt"
@@ -300,7 +323,9 @@ class DatabaseManager:
 
                         # Create a MemberRecord object with the data and return
                         an_address = Address(street,city,state,zip_code )
-                        return MemberRecord(name,ID,an_address) 
+                        mr = MemberRecord(name, ID, an_address)
+                        mr.is_suspended = is_suspended
+                        return mr
 
             except Exception as e:
                 print(f"An error occurred: {e}")
@@ -337,7 +362,7 @@ class DatabaseManager:
                         Provrecord = ProviderRecord(name,ID,an_address) 
                         #Provrecord.num_consultations = consultations
                         #Provrecord.total_payment= t_payment
-                        print("IN")
+                        # print("IN")
                         return Provrecord
                         
 
@@ -537,9 +562,12 @@ class DatabaseManager:
         self.SR_count += 1
         next_number = str(self.SR_count)
         self.update_SR_file_count()
-        
-        date=data_dict["Date Provided"]
-        formatted_date=date.replace("-","")
+
+        #Get the current date
+        now = datetime.datetime.now()
+
+        # Format the date as MM-DD-YYYY without dashes
+        formatted_date = now.strftime("%m%d%Y")
 
         # Construct the new filename with the incremented number
         new_filename_with_prefix = f"SR{next_number}_{formatted_date}.txt"
@@ -659,9 +687,11 @@ class DatabaseManager:
 
 
     def is_service(self,name,sid):
+        sid_int = int(sid)
         # Assuming self.directory is the list of sublists you're traversing
         for service in self.directory:
-            if service[1] == sid and service[0]==name:
+            service_int = int(service[1])
+            if service_int == sid_int and service[0]==name:
                 return True 
         return False # Return None if no matching service is found
 
@@ -681,14 +711,16 @@ class DatabaseManager:
 
     
      
-    def get_directory_service(self,sid):
-        # Assuming self.directory is the list of sublists you're traversing
+    def get_directory_service(self, sid):
+        sid_int = int(sid)
         for service in self.directory:
-            if service[1] == sid:
-                return service
-        return None # Return None if no matching service is found
-    
+            service_id_int = int(service[1])
 
+            if service_id_int == sid_int:
+                return service
+
+        # Return None if no matching service is found
+        return None
 
     def update_directory_service(self,name,sid,fee):
 
@@ -801,6 +833,7 @@ class DatabaseManager:
 
 
 #tests
+#data = DatabaseManager()
 """"
 #test
         
@@ -808,6 +841,7 @@ class DatabaseManager:
 ad = Address("Sw carrot RD", "Clackamas","OR","97015")
 m = MemberRecord("Jeb Bush", 100000000 ,ad)
 p = ProviderRecord("George Bush", 200000000, ad)
+serve= ServiceRecord("123456",200000000,100000000,"01-23-2024","destroyer of worlds", 123)
 
 
 #add
