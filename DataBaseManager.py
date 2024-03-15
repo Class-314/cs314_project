@@ -815,12 +815,12 @@ data.add_user_record(m)
 data.add_user_record(p)
 
 #new update
-"""
 
 data = DatabaseManager()
 serve= ServiceRecord("123456",101027954,100112136,"01-23-2024","destroyer of worlds", 123)
 data.add_service_record(serve)
 
+"""
 
 
 #Service Directory Tests
