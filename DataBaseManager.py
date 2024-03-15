@@ -5,6 +5,7 @@ import bisect
 from Records import *
 import random
 import string
+import time
 
 #test
 #holds directory of serivices name/id/fee
@@ -32,10 +33,12 @@ class DatabaseManager:
 
 
         #Essential Methods for program start #
-        self.load_IDs()
-        self.load_directory()
-        self.load_SR_count()
-
+        if not self.load_IDs():
+            raise ValueError("Failed to load IDs during initialization")
+        if not self.load_directory():
+            raise ValueError("Failed to load directory during initialization")
+        if not self.load_SR_count():
+            raise ValueError("Failed to load SR count during initialization")
 
 
 ##################################################################################################
@@ -45,35 +48,49 @@ class DatabaseManager:
     #-------------Backend Work---------------#
 
     def load_SR_count(self):
+        try:
+            with open(self.SR_count_relative_path, 'r') as file:
+                count = file.readline()
 
-        with open(self.SR_count_relative_path, 'r') as file:
-            count = file.readline()
+            self.SR_count = int(count)
+            return True
 
-        self.SR_count = int(count)
+        except:
+               print("File not found:", self.SR_count_relative_path)
+               return False
+
 
     def update_SR_file_count(self):
+        try:
+            with open(self.SR_count_relative_path, 'w') as file:
+                file.write(str(self.SR_count))
 
-        with open(self.SR_count_relative_path, 'w') as file:
-            file.write(str(self.SR_count))
-
-        return True
-
+            return True
+    
+        except:
+               print("File not found:", self.SR_count_relative_path)
+               return False
 
     def load_IDs(self):  
-        with open(self.Registerd_IDs_relative_path, 'r') as file:
-            # Split the line into parts based on the first space
-            for line in file:
-                parts = line.split(' ', 1)
+        try:
+            with open(self.Registerd_IDs_relative_path, 'r') as file:
+                # Split the line into parts based on the first space
+                for line in file:
+                    parts = line.split(' ', 1)
 
-                # The first part is the key, and the rest of the line is the value
-                key = parts[0].strip()
+                    # The first part is the key, and the rest of the line is the value
+                    key = parts[0].strip()
 
-                # Add the key-value pair to the dictionary
+                    # Add the key-value pair to the dictionary
 
-                self.IDs[key] = ""
+                    self.IDs[key] = ""
 
-            
             return True
+
+        except:
+               print("File not found:", self.Registerd_IDs_relative_path)
+               return False
+
 
     def register_ID(self,ID):
         value = self.ID_exists(ID)
@@ -81,11 +98,15 @@ class DatabaseManager:
             print("The Member already exists on File. No new record will be created.")
             return False # Return False or an appropriate value to indicate the file already exists
         else:
-            self.IDs[str(ID)] = ""
-            with open(self.Registerd_IDs_relative_path, 'a') as file:
-                file.write(f"{ID}\n")
+            try:
+                self.IDs[str(ID)] = ""
+                with open(self.Registerd_IDs_relative_path, 'a') as file:
+                    file.write(f"{ID}\n")
+                return True
+            except:
+                print("File not found:", self.Registerd_IDs_relative_path)
+                return False
             
-        return True
 
 
     def get_members_dict(self,instance):
@@ -210,18 +231,23 @@ class DatabaseManager:
                     print("The Member already exists on File. No new record will be created.")
                     return False # Return False or an appropriate value to indicate the file already exists
         else:
-            with open(relative_file_path, 'w') as file:
+            try:
+                with open(relative_file_path, 'w') as file:
 
-                for key, value in data_dict.items():
-                    file.write(f"{value}\n")
+                    for key, value in data_dict.items():
+                        file.write(f"{value}\n")
 
-                file.write("=\n")
-    
-            self.register_ID(file_name)
+                    file.write("=\n")
         
-            print(f"Member Record successfully uploaded to the database")
+                self.register_ID(file_name)
+            
+                print(f"Member Record successfully uploaded to the database")
 
-        return True
+                return True
+
+            except:
+                print("File not found:", relative_file_path)
+                return False
 
     def add_provider_record(self, to_add_record):
 
@@ -238,19 +264,24 @@ class DatabaseManager:
                     print("The Provider already exists on File. No new record will be created.")
                     return False # Return False or an appropriate value to indicate the file already exists
         else:
-            with open(relative_file_path, 'w') as file:
+            try:
+                with open(relative_file_path, 'w') as file:
 
-                for key, value in data_dict.items():
-                    file.write(f"{value}\n")
+                    for key, value in data_dict.items():
+                        file.write(f"{value}\n")
 
-                file.write("=\n")
+                    file.write("=\n")
 
-            self.register_ID(file_name)
-        
-            print(f"Provider Record successfully uploaded to the database")
-            print(to_add_record)
+                self.register_ID(file_name)
+            
+                print(f"Provider Record successfully uploaded to the database")
+                print(to_add_record)
 
-        return True
+                return True
+            except:
+                print("File not found:", relative_file_path)
+                return False
+            
 
     def remove_member_record(self, to_remove_record):
         # Convert the record to a dictionary
@@ -564,10 +595,11 @@ class DatabaseManager:
         self.update_SR_file_count()
 
         #Get the current date
-        now = datetime.datetime.now()
-
+        #now = datetime.datetime.now()
         # Format the date as MM-DD-YYYY without dashes
-        formatted_date = now.strftime("%m%d%Y")
+        #formatted_date = now.strftime("%m%d%Y")
+        now = data_dict["Current DateTime"]
+        formatted_date = now.replace('-','')
 
         # Construct the new filename with the incremented number
         new_filename_with_prefix = f"SR{next_number}_{formatted_date}.txt"
@@ -584,10 +616,14 @@ class DatabaseManager:
                     print("The Service Record already exists on File. No new record will be created.")
                     return False # Return False or an appropriate value to indicate the file already exists
         else:
-            with open(relative_file_path, 'w') as file:
+            try:
+                with open(relative_file_path, 'w') as file:
 
-                for key, value in data_dict.items():
-                    file.write(f"{value}\n")
+                    for key, value in data_dict.items():
+                        file.write(f"{value}\n")
+            except:
+                print("File not found:", relative_file_path)
+                return False
 
         print(f"Serivce Record successfully uploaded to the database")
 
@@ -637,10 +673,15 @@ class DatabaseManager:
 
          
     def update_file(self):
-        with open(self.ServiceDirectory_relative_path, 'w') as file:
-            for service in self.directory:
-                file.write(f"{service[0]}:{service[1]}:{service[2]}\n")
-        return True
+        try:
+            with open(self.ServiceDirectory_relative_path, 'w') as file:
+                for service in self.directory:
+                    file.write(f"{service[0]}:{service[1]}:{service[2]}\n")
+            return True
+
+        except:
+            print("File not found:", self.ServiceDirectory_relative_path)
+            return False
 
     #-------------Client---------------#
             
