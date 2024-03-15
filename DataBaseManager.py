@@ -2,12 +2,9 @@ import sys
 import os
 import glob
 import bisect
-from pprint import pprint
 from Records import *
 import random
 import string
-import datetime
-import re
 
 #test
 #holds directory of serivices name/id/fee
@@ -26,15 +23,18 @@ class DatabaseManager:
         self.ServiceRecords_relative_path = "Data/ServiceRecords/"
         self.ServiceDirectory_relative_path = "Data/services.txt"
         self.Registerd_IDs_relative_path = "Data/Registerd_IDs.txt"
+        self.SR_count_relative_path = "Data/SR_count.txt"
 
         # Data Members #
         self.directory= [] # list where each element holds { Name: [ ID, FEE] } a service- comprised it is the service directory
         self.IDs = {} #Dictionary of all ID's ever generated
+        self.SR_count = 0
 
 
         #Essential Methods for program start #
         self.load_IDs()
         self.load_directory()
+        self.load_SR_count()
 
 
 
@@ -44,8 +44,22 @@ class DatabaseManager:
 
     #-------------Backend Work---------------#
 
-    def load_IDs(self):
+    def load_SR_count(self):
 
+        with open(self.SR_count_relative_path, 'r') as file:
+            count = file.readline()
+
+        self.SR_count = int(count)
+
+    def update_SR_file_count(self):
+
+        with open(self.SR_count_relative_path, 'w') as file:
+            file.write(str(self.SR_count))
+
+        return True
+
+
+    def load_IDs(self):  
         with open(self.Registerd_IDs_relative_path, 'r') as file:
             # Split the line into parts based on the first space
             for line in file:
@@ -505,7 +519,7 @@ class DatabaseManager:
             return False
 
         data_dict = self.package_into_dict(to_add_record)
-
+        """
         # List all existing files that match the pattern
         existing_files = glob.glob(f"{self.ServiceRecords_relative_path}/SR*.txt")
 
@@ -519,7 +533,10 @@ class DatabaseManager:
 
         # Find the maximum number if any files exist, or start with 0 if the directory is empty
         next_number = max(existing_numbers, default=0) + 1 if existing_numbers else 0
-
+        """
+        self.SR_count += 1
+        next_number = str(self.SR_count)
+        self.update_SR_file_count()
         
         date=data_dict["Date Provided"]
         formatted_date=date.replace("-","")
@@ -534,6 +551,8 @@ class DatabaseManager:
         value = self.ID_exists(relative_file_path)
         if value ==True:
 
+                    self.SR_count -= 1
+                    self.update_SR_file_count()
                     print("The Service Record already exists on File. No new record will be created.")
                     return False # Return False or an appropriate value to indicate the file already exists
         else:
@@ -796,12 +815,13 @@ data.add_user_record(m)
 data.add_user_record(p)
 
 #new update
+"""
 
 data = DatabaseManager()
-serve= ServiceRecord("123456",101011253,100111565,"01-23-2024","destroyer of worlds", 123)
+serve= ServiceRecord("123456",101027954,100112136,"01-23-2024","destroyer of worlds", 123)
 data.add_service_record(serve)
 
-"""
+
 
 #Service Directory Tests
 """
