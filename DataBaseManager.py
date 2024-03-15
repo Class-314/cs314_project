@@ -51,6 +51,29 @@ class DatabaseManager:
 ##################################################################################################
 
     #-------------Backend Work---------------#
+        
+    def debug_remove_latest_entry(self):
+        try:
+            # Open the file in read mode to read its contents
+            with open(self.Registerd_IDs_relative_path, 'r') as file:
+                lines = file.readlines()
+
+            # Remove the last entry from the list of lines
+            if lines:
+                lines.pop()
+
+            # Open the file in write mode and write the updated list of lines back to the file
+            with open(self.Registerd_IDs_relative_path, 'w') as file:
+                file.writelines(lines)
+
+            return True
+        except FileNotFoundError:
+            print("File not found:", self.Registerd_IDs_relative_path)
+            return False
+        except Exception as e:
+            print("Error:", e)
+            return False
+
 
     def load_SR_count(self):
         try:
@@ -173,6 +196,11 @@ class DatabaseManager:
 
         return None
 
+    def shuffle_digits(self, num):
+            digits = [int(digit) for digit in str(num)]
+            random.shuffle(digits)
+            shuffled_num = int(''.join(map(str, digits)))
+            return shuffled_num
 
     def generate_random_ID(self):
         timestamp = int(time.time())
