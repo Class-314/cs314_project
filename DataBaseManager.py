@@ -2,13 +2,9 @@ import sys
 import os
 import glob
 import bisect
-from pprint import pprint
 from Records import *
 import random
 import string
-import datetime
-import re
-import time
 
 #test
 #holds directory of serivices name/id/fee
@@ -27,15 +23,18 @@ class DatabaseManager:
         self.ServiceRecords_relative_path = "Data/ServiceRecords/"
         self.ServiceDirectory_relative_path = "Data/services.txt"
         self.Registerd_IDs_relative_path = "Data/Registerd_IDs.txt"
+        self.SR_count_relative_path = "Data/SR_count.txt"
 
         # Data Members #
         self.directory= [] # list where each element holds { Name: [ ID, FEE] } a service- comprised it is the service directory
         self.IDs = {} #Dictionary of all ID's ever generated
+        self.SR_count = 0
 
 
         #Essential Methods for program start #
         self.load_IDs()
         self.load_directory()
+        self.load_SR_count()
 
 
 
@@ -45,8 +44,22 @@ class DatabaseManager:
 
     #-------------Backend Work---------------#
 
-    def load_IDs(self):
+    def load_SR_count(self):
 
+        with open(self.SR_count_relative_path, 'r') as file:
+            count = file.readline()
+
+        self.SR_count = int(count)
+
+    def update_SR_file_count(self):
+
+        with open(self.SR_count_relative_path, 'w') as file:
+            file.write(str(self.SR_count))
+
+        return True
+
+
+    def load_IDs(self):  
         with open(self.Registerd_IDs_relative_path, 'r') as file:
             # Split the line into parts based on the first space
             for line in file:
@@ -118,11 +131,12 @@ class DatabaseManager:
             return data_dict
         elif isinstance(to_add_record, ServiceRecord):
             data_dict = {
-                #"Fee": to_add_record._fee,
+                "Name": to_add_record.name,
+                "Fee": to_add_record.fee,
                 "Service Code": to_add_record.service_code,
                 "Provider ID": to_add_record.pID,
                 "Member ID": to_add_record.mID,
-                #"Comments": to_add_record.comments,
+                "Comments": to_add_record.comments,
                 "Date Provided": to_add_record.date_provided,
                 "Current DateTime": to_add_record.current_datetime
             }
@@ -146,7 +160,7 @@ class DatabaseManager:
             rand_num = random.randint(1,999999)
             timestamp = str(timestamp)
             uid = timestamp[:6] + str(rand_num)[:2]
-            rand_fill = str(random.randint(1, 9))
+            rand_fill = str(random.randint(1, 8))
             uid = uid[:9].ljust(9, rand_fill)
         
         if (uid[0] == 0):
@@ -156,22 +170,16 @@ class DatabaseManager:
         # # Define the character set including digits and asterisks
         # char_set = string.digits 
 
-        # # Generate a random ID of length 9
-        # new_ID = ''.join(random.choice(char_set) for _ in range(9))
+        # Generate a random ID of length 9
+        new_ID = ''.join(random.choice(char_set) for _ in range(9))
 
-        # # Check if the ID already exists
-        # while new_ID in self.IDs:
-        #     new_ID = ''.join(random.choice(char_set) for _ in range(9))
+        # Check if the ID already exists
+        while new_ID in self.IDs:
+            new_ID = ''.join(random.choice(char_set) for _ in range(9))
 
-        # return new_ID
+        return new_ID
 
-
-    def shuffle_digits(self, num):
-        digits = [int(digit) for digit in str(num)]
-        random.shuffle(digits)
-        shuffled_num = int(''.join(map(str, digits)))
-        return shuffled_num
-
+    
 
     # Check if the ID exists in the dictionary
     def ID_exists(self,ID):
@@ -219,10 +227,7 @@ class DatabaseManager:
 
         data_dict = self.package_into_dict(to_add_record)
         #file_name = data_dict["ID"]
-        to_add_record.ID = self.generate_random_ID()
-        data_dict["ID"] = to_add_record.ID
-        file_name = to_add_record.ID
-
+        file_name = self.generate_random_ID()
         file_name_with_prefix = "P" + str(file_name) + ".txt"
         relative_file_path = self.ProviderRecords_relative_path + file_name_with_prefix
 
@@ -391,10 +396,6 @@ class DatabaseManager:
                 lines[6] = f"{data_dict['Is Suspended']}\n"
 
 
-                print("TO_UPDATE_RECORD: " + str(to_update_record.is_suspended))
-                print("STATUS: " + str(to_update_record.convert_status()))
-                print("LINE 6: " + str(lines[6]))
-
                 # Write the updated lines back to the file
                 with open(relative_file_path, 'w') as file:
                     file.writelines(lines)
@@ -492,7 +493,7 @@ class DatabaseManager:
 
 
 
-##################################################################################################
+################################################################################################
 #####################################Service Records #############################################
 ##################################################################################################
 
@@ -543,7 +544,7 @@ class DatabaseManager:
             return False
 
         data_dict = self.package_into_dict(to_add_record)
-
+        """
         # List all existing files that match the pattern
         existing_files = glob.glob(f"{self.ServiceRecords_relative_path}/SR*.txt")
 
@@ -557,7 +558,10 @@ class DatabaseManager:
 
         # Find the maximum number if any files exist, or start with 0 if the directory is empty
         next_number = max(existing_numbers, default=0) + 1 if existing_numbers else 0
-
+        """
+        self.SR_count += 1
+        next_number = str(self.SR_count)
+        self.update_SR_file_count()
 
         #Get the current date
         now = datetime.datetime.now()
@@ -575,6 +579,8 @@ class DatabaseManager:
         value = self.ID_exists(relative_file_path)
         if value ==True:
 
+                    self.SR_count -= 1
+                    self.update_SR_file_count()
                     print("The Service Record already exists on File. No new record will be created.")
                     return False # Return False or an appropriate value to indicate the file already exists
         else:
@@ -844,9 +850,12 @@ data.add_user_record(p)
 
 #new update
 
+data = DatabaseManager()
+serve= ServiceRecord("123456",101027954,100112136,"01-23-2024","destroyer of worlds", 123)
 data.add_service_record(serve)
 
 """
+
 
 #Service Directory Tests
 """
