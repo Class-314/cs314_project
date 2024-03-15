@@ -45,6 +45,75 @@ class DatabaseManager:
         if not self.load_SR_count():
             raise ValueError("Failed to load SR count during initialization")
 
+##################################################################################################
+#################################### PYTEST Helper Methods ##########h##################################
+##################################################################################################
+
+    def Hpytest_remove_latest_entry(self):
+        try:
+            # Open the file in read mode to read its contents
+            with open(self.Registerd_IDs_relative_path, 'r') as file:
+                lines = file.readlines()
+
+            # Remove the last entry from the list of lines
+            if lines:
+                lines.pop()
+
+            # Open the file in write mode and write the updated list of lines back to the file
+            with open(self.Registerd_IDs_relative_path, 'w') as file:
+                file.writelines(lines)
+
+            return True
+        except FileNotFoundError:
+            print("File not found:", self.Registerd_IDs_relative_path)
+            return False
+        except Exception as e:
+            print("Error:", e)
+            return False
+
+
+    def Hpytest_deincrement_SR_file_count(self):
+        try:
+            self.SR_count -= 1  # Decrement SR_count by 1
+
+            with open(self.SR_count_relative_path, 'w') as file:
+                file.write(str(self.SR_count))
+
+            return True
+    
+        except:
+               print("File not found:", self.SR_count_relative_path)
+               return False
+
+    def Hpytest_remove_latest_SR_record(self, to_remove_record):
+        # Convert the record to a dictionary
+        data_dict = self.package_into_dict(to_remove_record)
+       
+        next_number = str(self.SR_count)
+
+        now = data_dict["Date Provided"]
+        formatted_date = now.replace('-','')
+
+        # Construct the new filename with the incremented number
+        new_filename_with_prefix = f"SR{next_number}_{formatted_date}.txt"
+
+        relative_file_path = self.ServiceRecords_relative_path + new_filename_with_prefix
+
+        # Check if the file exists
+        if os.path.exists(relative_file_path):
+            # Attempt to remove the file
+            try:
+                os.remove(relative_file_path)
+
+                return self.Hpytest_deincrement_SR_file_count()
+
+            except Exception as e:
+                return False # Return False or an appropriate value to indicate an error occurred
+        else:
+            return False # Return False or an appropriate value to indicate the file does not exist
+            
+
+    
 
 ##################################################################################################
 #################################### Utility Methods ##########h##################################
