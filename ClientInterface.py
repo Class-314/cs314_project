@@ -167,7 +167,11 @@ class ClientInterface:
         user_input = 'n'
         while user_input != 'y':
             self.input_user(to_add)
-            to_add.ID = 111111111
+            #PRE- EDDIT
+            #to_add.ID = 111111111
+            #POST
+            to_add.ID = self.DB_mgr.generate_random_ID()
+            #
             print(to_add)
             user_input = input("Does this information look correct? y/n: ")
             user_input = user_input.lower()
@@ -217,7 +221,12 @@ class ClientInterface:
         user_input = 'n'
         while user_input != 'y':
             self.input_user(to_add)
-            to_add.ID = 111111111
+            #PRE- EDDIT
+            #to_add.ID = 111111111
+            #POST
+            to_add.ID = self.DB_mgr.generate_random_ID()
+            #
+
             print(to_add)
             user_input = input("Does this information look correct? y/n: ")
             user_input = user_input.lower()

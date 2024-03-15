@@ -251,8 +251,9 @@ class DatabaseManager:
     def add_member_record(self, to_add_record):
 
         data_dict = self.package_into_dict(to_add_record)
-#       file_name = data_dict["ID"]
-        to_add_record.ID = self.generate_random_ID()
+
+        #PRE - REMOVE to_add_record.ID = self.generate_random_ID()
+
         data_dict["ID"] = to_add_record.ID
         file_name = to_add_record.ID
         
@@ -288,8 +289,12 @@ class DatabaseManager:
     def add_provider_record(self, to_add_record):
 
         data_dict = self.package_into_dict(to_add_record)
-        #file_name = data_dict["ID"]
-        file_name = self.generate_random_ID()
+
+        #POST
+
+        data_dict["ID"] = to_add_record.ID
+        file_name = to_add_record.ID
+
         file_name_with_prefix = "P" + str(file_name) + ".txt"
         relative_file_path = self.ProviderRecords_relative_path + file_name_with_prefix
 
