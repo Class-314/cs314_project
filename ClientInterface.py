@@ -370,7 +370,8 @@ class ClientInterface:
                     print("Service does not exist")
                     user_input = input("Try again? (y/n): ")
                 else:
-                    print(service)
+
+                    print(str(service[0]) + " : " + str(service[1]) + " : " + str(service[2]))
                     service[0], service[1], service[2] = self.input_service()
                     self.DB_mgr.update_directory_service(service[0], service[1], service[2])
                     break
@@ -400,7 +401,7 @@ class ClientInterface:
         while (len(service_name) > 20):
             print("Invalid entry, please enter a name with 20 or less characters")
             service_name = input("Please enter the name of the service: ")
-        service_code = input("Please enter the service code")
+        service_code = input("Please enter the service code: ")
         service_code = str(service_code)
         while (len(service_code) != 6):
             print("Invalid entry, please enter a 6 digit number")
