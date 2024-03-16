@@ -109,10 +109,10 @@ class ClientInterface:
     def manager_menu(self):
             while True:
                 print("\nManager Menu")
+                print("0. Return to Main Menu")
                 print("1. Manage Members and Providers")
                 print("2. Manage Services")
                 print("3. Reports")
-                print("0. Return to Main Menu")
                 choice = input("Choose an option: ")
 
                 if choice == '1':
@@ -134,13 +134,13 @@ class ClientInterface:
     def manage_users_menu(self):
         while True:
             print("\nUser Management")
+            print("0. Return to Main Menu")
             print("1. Add Provider")
             print("2. Modify Provider")
             print("3. Remove Provider")
             print("4. Add Member")
             print("5. Modify Member")
             print("6. Remove Member")
-            print("0. Return to Main Menu")
             choice = input("Choose an option: ")
 
             if choice == '1':
@@ -331,10 +331,10 @@ class ClientInterface:
     def manage_services_menu(self):
         while True:
             print("\nService Management")
+            print("0. Return to Main Menu")
             print("1. Add Service")
             print("2. Modify Service")
             print("3. Remove Service")
-            print("0. Return to Main Menu")
             choice = input("Choose an option: ")
 
             if choice == '1':
@@ -419,13 +419,13 @@ class ClientInterface:
     def manage_reports_menu(self):
         while True:
             print("\nReport Management")
+            print("0. Return to Main Menu")
             print("1. Generate Member Reports")
             print("2. Generate Individual Member Report")
             print("3. Generate Provider Reports")
             print("4. Generate Individual Provider Report")
             print("5. Generate Summary Report")
             print("6. Generate Weekly Report")
-            print("0. Return to Main Menu")
             choice = input("Choose an option: ")
 
             if choice == '1':
@@ -449,20 +449,77 @@ class ClientInterface:
 
 
     def generate_member_reports(self):
-        pass
+        try:
+            self.DB_mgr.write_weekly_member_report()
+            print("\nWeekly Member Report has been created. Please view your Report/MemberReports Folder!")
+            return True
+        except: 
+            return False
 
     def generate_member_report(self):
-        pass
+        try:
+            while True:
+                user_input = input("\nEnter Member ID: ")
+                if user_input.isdigit() and len(user_input) == 9:
+
+                    if self.verify_member_exists(user_input):
+                        # If verify ask if the user would like to run the report for this Member
+                        temp_member = self.get_member(user_input)
+                        confirmation = input("Do you want to run the report for " + temp_member.name + "? (y/n)")
+                        if confirmation != 'y':
+                            return False
+                        self.DB_mgr.write_member_report(user_input)
+                        print("\nMember Report has been created. Please view your Report/MemberReports Folder!")
+                        return True
+                    else:
+                        print("Member ID not found.")
+                else:
+                    print("Error: Member ID must be an integer and 9 digits long.")
+
+                try_again = input("Do you want to try again? (y/n): ").lower()
+                if try_again != 'y':
+                    return False
+        except:
+            return False
 
     def generate_provider_reports(self):
-        pass
+        try:
+            self.DB_mgr.write_provider_report()
+            print("\nWeekly Provider Report has been created. Please view your Report/ProviderReports Folder!")
+            return True
+        except: 
+            return False
 
     def generate_provider_report(self):
-        pass
+        while True:
+            user_input = input("\nEnter Provider ID: ")
+            if user_input.isdigit() and len(user_input) == 9:
+                # Verify if the provider ID exists
+                if self.verify_provider_exists(user_input):
+                    temp_provider = self.get_provider(user_input)
+                    # If verify ask if the user would like to run the report for this Provider
+                    confirmation = input("Do you want to run the report for " + temp_provider.name + "? (y/n)")
+                    if confirmation != 'y':
+                        return False
+                    self.DB_mgr.write_provider_report(user_input)
+                    print("\nProvider Report has been created. Please view your Report/ProviderReports Folder!")
+                    return True
+                else:
+                    print("Provider ID not found.")
+            else:
+                print("Error: Provider ID must be an integer and 9 digits long.")
+
+            try_again = input("Do you want to enter the  try again? (y/n): ").lower()
+            if try_again != 'y':
+                return False
 
     def generate_summary_report(self):
-        pass
-
+        try:
+            self.DB_mgr.write_summary_report()
+            print("\nWeekly Summary Report has been created. Please view your Report/SummaryReports Folder!")
+            return True
+        except: 
+            return False
 
     # Check if the provider ID exists 
     def verify_provider_exists(self, provider_id):
@@ -677,8 +734,6 @@ class ClientInterface:
                 # Create the ServiceRecord object without the comment
                 service_record = ServiceRecord(service_code, service_provider.ID, service_member.ID, service_date_str, service_name, service_fee)
             
-
-
             # Attempt to add the service record via the Database Manager
             update_success = self.DB_mgr.add_service_record(service_record)
         
@@ -712,16 +767,4 @@ class ClientInterface:
     def update_service_directory(self):
         # Implement service directory update logic here -> sending to database manager
         pass
-
-    '''
-    '''     
-        while True:
-            try:
-                service_fee_input = input("\nEnter the Service Fee: ")
-                service_fee = float(service_fee_input)
-                if service_fee < 0 or service_fee >= 1000000:
-                    raise ValueError("Service fee must be between $0.00 and $999,999.99.")
-                break
-            except ValueError as e:
-                print(f"Invalid input for service fee: {e}. Please try again.")
-        '''  
+'''
