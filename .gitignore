@@ -1,2 +1,7 @@
 __pycache__/
 .vscode/
+Data/Registerd_IDs.txt
+Data/services.txt
+Data/UserRecords/MemberRecords/M100815363.txt
+Data/UserRecords/MemberRecords/M718657516.txt
+/Data
