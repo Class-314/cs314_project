@@ -6,5 +6,3 @@ Thomas Warren Dds
 100815363
 False
 =
-SR31_03142024.txt
-SR32_03102024.txt
