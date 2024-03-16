@@ -1202,10 +1202,17 @@ class DatabaseManager:
                 num_consultations += (len(service_file_list))
                 overall_fee += float(fee)
 
-            lines.append("Total number of Providers who provided services this week: " + str(num_providers) + '\n')
-            lines.append("Total number of consultations this week: " + str(num_consultations) + '\n')
-            lines.append("Overall fee total for this week: " + str(overall_fee) + '\n')
+            num_con_str = "Total number of Providers who provided services this week: " + str(num_providers) + '\n'
+            num_prov_str = "Total number of consultations this week: " + str(num_consultations) + '\n'
+            fee_str = "Overall fee total for this week: " + str(overall_fee) + '\n'
+            lines.append(num_con_str)
+            lines.append(num_prov_str)
+            lines.append(fee_str)
             file.writelines(lines)
+
+        print(num_con_str)
+        print(num_prov_str)
+        print(fee_str)
 
 
     def get_total_fee(self, service_file_list):
