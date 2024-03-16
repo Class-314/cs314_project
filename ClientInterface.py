@@ -484,7 +484,7 @@ class ClientInterface:
 
     def generate_provider_reports(self):
         try:
-            self.DB_mgr.write_provider_report()
+            self.DB_mgr.write_weekly_provider_report()
             print("\nWeekly Provider Report has been created. Please view your Report/ProviderReports Folder!")
             return True
         except: 
