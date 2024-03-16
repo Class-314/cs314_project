@@ -25,8 +25,3 @@ if __name__ == "__main__":
     ci = ClientInterface()
     main_menu(ci)
 
-    db = DataBaseManager.DatabaseManager()
-
-    db.write_weekly_member_report()
-    db.write_weekly_provider_report()
-    db.write_summary_report()
